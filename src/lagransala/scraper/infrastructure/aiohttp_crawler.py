@@ -43,6 +43,8 @@ class AiohttpCrawler:
             async with self.session.get(str(url)) as response:
                 if response.status != 200:
                     return
+                if response.content_type != "text/html":
+                    return
                 try:
                     text = await response.text()
                 except UnicodeDecodeError:

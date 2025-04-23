@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [[ "$1" == "build" ]]; then
+    echo "Building Docker image..."
+    docker build -t lagransala:latest .
+    exit 0
+fi
+
+if [[ $# -eq 0 ]]; then
+    cmd=(bash -li)
+else
+    cmd=(uv run "$@")
+    echo "Running '${cmd[*]}' command in docker container..."
+fi
+
+docker run \
+    --rm \
+    --volume "$(pwd)":/app \
+    --volume /app/.venv \
+    --publish 8000:8000 \
+    -e TERM="xterm"\
+    -it \
+    lagransala:latest \
+    "${cmd[@]}"

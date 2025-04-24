@@ -26,6 +26,7 @@ async def test_aiohttp_crawler_basic_html_parsing():
     response_mock = MagicMock()
     response_mock.text = AsyncMock(return_value=html_content)
     response_mock.status = 200
+    response_mock.content_type = "text/html"
 
     # Make sure the get call returns a context manager with our response
     context_manager_mock = MagicMock()

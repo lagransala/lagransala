@@ -18,16 +18,14 @@ async def test():
             "Connection": "keep-alive",
         },
     ) as session:
-        crawler = AiohttpCrawler(
-            url_filter=lambda url: "FichaPelicula" in str(url),
-            session=session,
-        )
-        result = await crawler.run(HttpUrl("https://entradasfilmoteca.gob.es/"))
+        crawler = AiohttpCrawler(session=session)
+        start_url = HttpUrl("https://elvivero.es/")
+        result = await crawler.run(start_url)
         print(
             f"Found {len(result.pages)} pages in {result.duration.total_seconds()} seconds."
         )
         for page in sorted(result.pages):
-            print(page)
+            print(f"https://{start_url.host}{page}")
 
 
 def main():

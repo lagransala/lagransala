@@ -1,6 +1,9 @@
 from typing import Iterable
-from pydantic import ValidationError
+from uuid import uuid4
+
 import pytest
+from pydantic import ValidationError
+
 from lagransala.scraper.domain.pagination import Pagination
 
 
@@ -8,22 +11,26 @@ from lagransala.scraper.domain.pagination import Pagination
 def valid_pagination_constructor_params() -> list[dict]:
     return [
         {
+            "id": uuid4(),
             "type": None,
             "url": "https://cinema.com/films",
         },
         {
+            "id": uuid4(),
             "type": "simple",
             "url": "https://cinema.com/films?page={n}",
             "simple_start_from": 0,
             "limit": 10,
         },
         {
+            "id": uuid4(),
             "type": "day",
             "url": "https://cinema.com/films?date={date}",
             "date_format": "%Y-%m-%d",
             "limit": 31,
         },
         {
+            "id": uuid4(),
             "type": "month",
             "url": "https://cinema.com/films?month={month}",
             "date_format": "%Y-%m",
@@ -31,28 +38,34 @@ def valid_pagination_constructor_params() -> list[dict]:
         },
     ]
 
+
 @pytest.fixture()
 def paginations(valid_pagination_constructor_params: list[dict]) -> list[Pagination]:
     return [Pagination(**params) for params in valid_pagination_constructor_params]
+
 
 @pytest.fixture()
 def invalid_pagination_constructor_params() -> list[dict]:
     return [
         {
+            "id": uuid4(),
             "type": None,
         },
         {
+            "id": uuid4(),
             "type": "simple",
             "url": "https://cinema.com/films?page={n}",
             "simple_start_from": 0,
         },
         {
+            "id": uuid4(),
             "type": "simple",
             "url": "https://cinema.com/films",
             "simple_start_from": 0,
             "limit": 10,
         },
         {
+            "id": uuid4(),
             "type": "day",
             "url": "https://cinema.com/films?date={day}",
             "date_format": "asdasda",
@@ -71,8 +84,11 @@ def test_invalid_paginations(invalid_pagination_constructor_params: list[dict]):
         with pytest.raises(ValidationError):
             Pagination(**params)
 
+
 def test_pagination_urls(paginations: list[Pagination]):
     for pagination in paginations:
         urls = pagination.urls()
         assert isinstance(urls, Iterable), "URLs should be iterable"
-        assert not pagination.limit or len(urls) == pagination.limit, "Number of URLs should match the limit"
+        assert (
+            not pagination.limit or len(urls) == pagination.limit
+        ), "Number of URLs should match the limit"

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Self
 
-from pydantic import BaseModel, HttpUrl, model_validator
+from pydantic import UUID4, BaseModel, HttpUrl, model_validator
 
 
 class PaginationType(Enum):
@@ -11,8 +11,10 @@ class PaginationType(Enum):
     DAY = "day"
     MONTH = "month"
 
+type PaginationID = UUID4
 
 class Pagination(BaseModel):
+    id: PaginationID
     type: PaginationType | None = None
     url: str
     limit: int | None = None

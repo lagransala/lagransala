@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlparse
 import aiohttp
 from pydantic import HttpUrl, ValidationError
 
-from lagransala.scraper.domain.crawl_result import CrawlResult
+from lagransala.scraper.domain.crawler import CrawlResult
 from lagransala.shared.application.urls import extract_urls
 
 logger = logging.getLogger(__name__)

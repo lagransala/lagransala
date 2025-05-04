@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from pydantic import HttpUrl
 
-from lagransala.scraper.domain.crawl_result import CrawlResult
+from lagransala.scraper.domain.crawler import CrawlResult
 from lagransala.scraper.infrastructure.aiohttp_crawler import AiohttpCrawler
 
 

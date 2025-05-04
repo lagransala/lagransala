@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Self
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, HttpUrl, model_validator
 
 
 class PaginationType(Enum):
@@ -52,3 +53,44 @@ class Pagination(BaseModel):
                 ), "Date format must be set for Month pagination"
                 assert self.limit is not None, "Month pagination limit must be set"
         return self
+
+
+    def urls(self) -> list[HttpUrl]:
+        match self.type:
+            case PaginationType.NONE | None:
+                return [HttpUrl(self.url)]
+            case PaginationType.SIMPLE:
+                assert self.simple_start_from is not None
+                assert self.limit is not None
+                return [
+                    HttpUrl(self.url.format(n=i))
+                    for i in range(
+                        self.simple_start_from,
+                        self.limit + self.simple_start_from,
+                    )
+                ]
+            case PaginationType.DAY:
+                assert self.date_format is not None
+                assert self.limit is not None
+                today = datetime.now().replace(minute=0, hour=0, second=0)
+                result: list[HttpUrl] = []
+                for i in range(0, self.limit):
+                    date = today + timedelta(days=i)
+                    url = HttpUrl(
+                        self.url.format(date=date.strftime(self.date_format))
+                    )
+                    result.append(url)
+                return result
+            case PaginationType.MONTH:
+                assert self.date_format is not None
+                assert self.limit is not None
+                month_start = datetime.now().replace(day=1, minute=0, hour=0, second=0)
+                current_month = month_start.month
+                result: list[HttpUrl] = []
+                for i in range(0, self.limit):
+                    month = month_start.replace(month=current_month + i)
+                    url = HttpUrl(
+                        self.url.format(date=month.strftime(self.date_format))
+                    )
+                    result.append(url)
+                return result

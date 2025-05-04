@@ -69,6 +69,7 @@ def test_extract_urls():
 
     assert result == expected
 
+
 def test_extract_urls_with_pattern():
     content = """
         <html>

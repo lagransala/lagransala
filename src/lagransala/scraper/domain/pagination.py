@@ -11,7 +11,9 @@ class PaginationType(Enum):
     DAY = "day"
     MONTH = "month"
 
+
 type PaginationID = UUID4
+
 
 class Pagination(BaseModel):
     id: PaginationID

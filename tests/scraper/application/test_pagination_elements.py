@@ -1,4 +1,3 @@
-
 from lagransala.scraper.application.pagination_elements import pagination_elements
 
 

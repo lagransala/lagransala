@@ -10,6 +10,7 @@ dependencies = [
     "crawl4ai>=0.6.0",
     "jinaai>=0.2.10",
     "pydantic>=2.11.3",
+    "sqlmodel>=0.0.24",
     "urlextract>=1.9.0",
 ]
 

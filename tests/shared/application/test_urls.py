@@ -68,3 +68,28 @@ def test_extract_urls():
     result = extract_urls(content)
 
     assert result == expected
+
+def test_extract_urls_with_pattern():
+    content = """
+        <html>
+            <body>
+                <a href="https://example.com/page1.html">Link 1</a>
+                <a href="https://example.com/page2.php?id=1&amp;n=4906">Link 2</a>
+                <a href="https://example.com/help.html">Help</a>
+                <a href="/internal/path/about/">About</a>
+                <a href="/internal/path/contact/">Contact</a>
+            </body>
+        </html>
+    """
+
+    # Only include URLs that contain "page"
+    pattern = r".*page.*"
+
+    expected = {
+        "https://example.com/page1.html",
+        "https://example.com/page2.php?id=1&n=4906",
+    }
+
+    result = extract_urls(content, pattern)
+
+    assert result == expected

@@ -54,7 +54,6 @@ class Pagination(BaseModel):
                 assert self.limit is not None, "Month pagination limit must be set"
         return self
 
-
     def urls(self) -> list[HttpUrl]:
         match self.type:
             case PaginationType.NONE | None:
@@ -76,9 +75,7 @@ class Pagination(BaseModel):
                 result: list[HttpUrl] = []
                 for i in range(0, self.limit):
                     date = today + timedelta(days=i)
-                    url = HttpUrl(
-                        self.url.format(date=date.strftime(self.date_format))
-                    )
+                    url = HttpUrl(self.url.format(date=date.strftime(self.date_format)))
                     result.append(url)
                 return result
             case PaginationType.MONTH:
@@ -89,8 +86,10 @@ class Pagination(BaseModel):
                 result: list[HttpUrl] = []
                 for i in range(0, self.limit):
                     month = month_start.replace(month=current_month + i)
+                    print(month)
                     url = HttpUrl(
-                        self.url.format(date=month.strftime(self.date_format))
+                        self.url.format(month=month.strftime(self.date_format))
                     )
+
                     result.append(url)
                 return result

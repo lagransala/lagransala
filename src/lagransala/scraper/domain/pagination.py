@@ -22,6 +22,8 @@ class Pagination(BaseModel):
     limit: int | None = None
     simple_start_from: int | None = None
     date_format: str | None = None
+    base_url: HttpUrl
+    element_url_pattern: str
 
     @model_validator(mode="after")
     def validate_pagination(self) -> Self:

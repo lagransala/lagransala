@@ -14,6 +14,8 @@ def valid_pagination_constructor_params() -> list[dict]:
             "id": uuid4(),
             "type": None,
             "url": "https://cinema.com/films",
+            "base_url": "https://cinema.com",
+            "element_url_pattern": "/films/\\d+",
         },
         {
             "id": uuid4(),
@@ -21,6 +23,8 @@ def valid_pagination_constructor_params() -> list[dict]:
             "url": "https://cinema.com/films?page={n}",
             "simple_start_from": 0,
             "limit": 10,
+            "base_url": "https://cinema.com",
+            "element_url_pattern": "/films/\\d+",
         },
         {
             "id": uuid4(),
@@ -28,6 +32,8 @@ def valid_pagination_constructor_params() -> list[dict]:
             "url": "https://cinema.com/films?date={date}",
             "date_format": "%Y-%m-%d",
             "limit": 31,
+            "base_url": "https://cinema.com",
+            "element_url_pattern": "/films/\\d+",
         },
         {
             "id": uuid4(),
@@ -35,6 +41,8 @@ def valid_pagination_constructor_params() -> list[dict]:
             "url": "https://cinema.com/films?month={month}",
             "date_format": "%Y-%m",
             "limit": 2,
+            "base_url": "https://cinema.com",
+            "element_url_pattern": "/films/\\d+",
         },
     ]
 

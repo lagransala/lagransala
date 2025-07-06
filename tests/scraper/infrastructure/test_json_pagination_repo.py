@@ -3,7 +3,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
-from pydantic import UUID4
+from pydantic import UUID4, HttpUrl
 
 from lagransala.scraper.domain.pagination import Pagination, PaginationType
 from lagransala.scraper.infrastructure.json_pagination_repo import JsonPaginationRepo
@@ -19,6 +19,8 @@ def create_sample_pagination(id: UUID4 | None = None):
         url="https://example.com/page/{n}",
         limit=10,
         simple_start_from=1,
+        base_url=HttpUrl("https://example.com"),
+        element_url_pattern="/page/\\d+",
     )
 
 
@@ -60,6 +62,8 @@ def test_update_existing(repo):
         url="https://example.com/page/{n}",
         limit=20,
         simple_start_from=1,
+        base_url=HttpUrl("https://example.com"),
+        element_url_pattern="/page/\\d+",
     )
     repo.add(updated)
     all_pages = repo.get()

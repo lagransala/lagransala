@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import overload
 
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 
 from lagransala.scraper.domain.pagination import Pagination, PaginationID
 
@@ -40,7 +40,12 @@ class JsonPaginationRepo:
     ) -> list[Pagination] | Pagination | None:
         """Get a pagination by its ID or all paginations if ID is None."""
         with open(self._file) as file:
-            paginations = self._adapter.validate_json(file.read())
+            try:
+                paginations = self._adapter.validate_json(file.read())
+            except ValidationError as e:
+                for error in e.errors():
+                    print(f"Error in {self._file}: " f"{error['loc']}: {error['msg']}")
+                raise ValueError(f"Invalid JSON in {self._file}: {e}") from e
         if id:
             return next(filter(lambda p: p.id == id, paginations), None)
         else:

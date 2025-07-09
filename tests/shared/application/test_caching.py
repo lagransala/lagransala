@@ -80,6 +80,48 @@ def test_generate_key_with_key_params():
     assert key1 == key4
 
 
+def test_generate_key_with_mixed_args_and_key_params():
+    """Test that key_params works with positional, keyword, and default args."""
+
+    def sample_func(pos1, pos2, *, kw1="default", kw2=None):
+        pass
+
+    key_params = ["pos1", "kw1"]
+
+    # All args passed positionally, but kw1 has default value
+    key1 = generate_key(sample_func, (1, "a"), {}, key_params=key_params)
+
+    # kw1 passed as keyword
+    key2 = generate_key(
+        sample_func, (1, "b"), {"kw1": "default"}, key_params=key_params
+    )
+    assert key1 == key2
+
+    # kw1 passed as keyword with different value
+    key3 = generate_key(
+        sample_func, (1, "c"), {"kw1": "changed"}, key_params=key_params
+    )
+    assert key1 != key3
+
+    # pos1 passed as keyword
+    key4 = generate_key(
+        sample_func,
+        (),
+        {"pos1": 1, "pos2": "d", "kw1": "default"},
+        key_params=key_params,
+    )
+    assert key1 == key4
+
+    # pos1 has a different value
+    key5 = generate_key(
+        sample_func,
+        (),
+        {"pos1": 2, "pos2": "e", "kw1": "default"},
+        key_params=key_params,
+    )
+    assert key1 != key5
+
+
 # Tests for the @cached decorator
 @pytest.mark.asyncio
 async def test_cached_with_memory_backend(memory_cache_backend):

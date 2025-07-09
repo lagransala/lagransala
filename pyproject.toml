@@ -41,7 +41,7 @@ dev = [
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "session"
-addopts = "-ra --cov"
+addopts = "-ra --cov=src"
 
 [tool.commitizen]
 version_provider = "uv"

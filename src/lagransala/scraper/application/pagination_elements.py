@@ -2,7 +2,7 @@ from typing import Pattern
 
 from aiohttp import ClientSession
 
-from lagransala.scraper.domain.pagination import Pagination
+from lagransala.scraper.domain import Pagination
 from lagransala.shared.application.urls import extract_urls
 
 

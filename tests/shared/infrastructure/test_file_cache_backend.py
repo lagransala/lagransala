@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from lagransala.shared.infrastructure.file_cache_backend import FileCacheBackend
+from lagransala.shared.infrastructure import FileCacheBackend
 
 
 class SimpleData(BaseModel):

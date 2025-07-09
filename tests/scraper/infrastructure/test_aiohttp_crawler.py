@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from pydantic import HttpUrl
 
-from lagransala.scraper.domain.crawler import CrawlResult
-from lagransala.scraper.infrastructure.aiohttp_crawler import AiohttpCrawler
+from lagransala.scraper.domain import CrawlResult
+from lagransala.scraper.infrastructure import AiohttpCrawler
 
 
 @pytest.mark.asyncio

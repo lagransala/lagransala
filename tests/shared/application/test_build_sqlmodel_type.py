@@ -5,10 +5,7 @@ import pytest
 from pydantic import HttpUrl
 from sqlalchemy import Dialect
 
-from lagransala.shared.application.build_sqlmodel_type import (
-    build_sqlmodel_list_type,
-    build_sqlmodel_type,
-)
+from lagransala.shared.application import build_sqlmodel_list_type, build_sqlmodel_type
 
 
 @pytest.fixture(scope="module")

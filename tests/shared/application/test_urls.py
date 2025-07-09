@@ -1,6 +1,7 @@
 import pytest
 
-from lagransala.shared.application.urls import extract_urls, is_html_url
+from lagransala.shared.application import extract_urls
+from lagransala.shared.application.urls import is_html_url
 
 
 @pytest.fixture

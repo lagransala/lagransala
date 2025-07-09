@@ -5,8 +5,8 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import UUID4, HttpUrl
 
-from lagransala.scraper.domain.pagination import Pagination, PaginationType
-from lagransala.scraper.infrastructure.json_pagination_repo import JsonPaginationRepo
+from lagransala.scraper.domain import Pagination, PaginationType
+from lagransala.scraper.infrastructure import JsonPaginationRepo
 
 
 def create_sample_pagination(id: UUID4 | None = None):

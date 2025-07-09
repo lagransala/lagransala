@@ -2,11 +2,10 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
-from pydantic import HttpUrl, ValidationError
-from sqlmodel import Session, SQLModel, create_engine, select
+from pydantic import HttpUrl
+from sqlmodel import Session, SQLModel, create_engine
 
-from lagransala.schedule.domain.event import Event, EventDateTime
-from lagransala.schedule.domain.venue import Venue
+from lagransala.schedule.domain import Event, EventDateTime, Venue
 
 
 @pytest.fixture(name="engine")

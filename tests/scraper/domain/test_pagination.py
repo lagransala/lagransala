@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from lagransala.scraper.domain.pagination import Pagination
+from lagransala.scraper.domain import Pagination
 
 
 @pytest.fixture()

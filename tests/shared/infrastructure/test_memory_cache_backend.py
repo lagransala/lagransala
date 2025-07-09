@@ -3,7 +3,7 @@ import time
 import pytest
 from pydantic import BaseModel
 
-from lagransala.shared.infrastructure.memory_cache_backend import MemoryCacheBackend
+from lagransala.shared.infrastructure import MemoryCacheBackend
 
 
 class SimpleData(BaseModel):

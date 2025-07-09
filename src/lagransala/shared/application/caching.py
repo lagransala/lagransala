@@ -34,6 +34,7 @@ def generate_key(func: Callable[P, Any], *args: P.args, **kwargs: P.kwargs) -> s
 def cached(
     backend: CacheBackend[R],
     ttl: int | None = None,
+    key_func: Callable[..., str] = generate_key,
 ) -> Callable[
     [Callable[P, Coroutine[Any, Any, R]]], Callable[P, Coroutine[Any, Any, R]]
 ]:
@@ -44,7 +45,7 @@ def cached(
     ) -> Callable[P, Coroutine[Any, Any, R]]:
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            key = generate_key(func, *args, **kwargs)
+            key = key_func(func, *args, **kwargs)
 
             cached_value = await backend.get(key)
             if cached_value is not None:

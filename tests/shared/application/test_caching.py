@@ -132,3 +132,32 @@ async def test_cached_with_ttl(memory_cache_backend):
     # Third call (after TTL), should execute again
     await timed_function(1)
     assert call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_cached_with_custom_key_func(memory_cache_backend):
+    """Test that the decorator uses a custom key function when provided."""
+    call_count = 0
+
+    def custom_key_func(func, *args, **kwargs):
+        return f"custom::{func.__name__}::{args[0]}"
+
+    @cached(backend=memory_cache_backend, key_func=custom_key_func)
+    async def custom_keyed_function(a: int) -> SimpleData:
+        nonlocal call_count
+        call_count += 1
+        return SimpleData(value=f"custom_{a}")
+
+    # First call
+    await custom_keyed_function(1)
+    assert call_count == 1
+
+    # Second call
+    await custom_keyed_function(1)
+    assert call_count == 1
+
+    # Check the custom key in the cache
+    custom_key = custom_key_func(custom_keyed_function, 1)
+    cached_data = await memory_cache_backend.get(custom_key)
+    assert cached_data is not None
+    assert cached_data.value == "custom_1"

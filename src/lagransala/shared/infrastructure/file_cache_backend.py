@@ -42,6 +42,6 @@ class FileCacheBackend(Generic[Data]):
     async def set(self, key: str, value: Data, ttl: int | None = None) -> None:
         path = self._path_for_key(key)
         expiry = (time.time() + ttl) if ttl is not None else None
-        payload = {"expiry": expiry, "data": value.model_dump()}
+        payload = {"expiry": expiry, "data": value.model_dump(mode="json")}
         async with aiofiles.open(path, "w", encoding="utf-8") as f:
             await f.write(json.dumps(payload))

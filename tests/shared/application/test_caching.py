@@ -31,8 +31,8 @@ def test_generate_key_consistency():
     def sample_func(a: int, b: str):
         pass
 
-    key1 = generate_key(sample_func, 1, b="hello")
-    key2 = generate_key(sample_func, 1, b="hello")
+    key1 = generate_key(sample_func, (1,), {"b": "hello"})
+    key2 = generate_key(sample_func, (1,), {"b": "hello"})
     assert key1 == key2
 
 
@@ -42,8 +42,8 @@ def test_generate_key_arg_order_insensitivity():
     def sample_func(a: int, b: str, c: bool):
         pass
 
-    key1 = generate_key(sample_func, 1, b="hello", c=True)
-    key2 = generate_key(sample_func, 1, c=True, b="hello")
+    key1 = generate_key(sample_func, (1,), {"b": "hello", "c": True})
+    key2 = generate_key(sample_func, (1,), {"c": True, "b": "hello"})
     assert key1 == key2
 
 
@@ -53,9 +53,31 @@ def test_generate_key_arg_difference():
     def sample_func(a: int, b: str):
         pass
 
-    key1 = generate_key(sample_func, 1, b="hello")
-    key2 = generate_key(sample_func, 2, b="world")
+    key1 = generate_key(sample_func, (1,), {"b": "hello"})
+    key2 = generate_key(sample_func, (2,), {"b": "world"})
     assert key1 != key2
+
+
+def test_generate_key_with_key_params():
+    """Test that key_params correctly filters arguments."""
+
+    def sample_func(a: int, b: str, c: bool = False):
+        pass
+
+    # Keys should be the same because only 'a' is considered
+    key1 = generate_key(sample_func, (1,), {"b": "hello"}, key_params=["a"])
+    key2 = generate_key(sample_func, (1,), {"b": "world"}, key_params=["a"])
+    assert key1 == key2
+
+    # Keys should be different because 'a' is different
+    key3 = generate_key(sample_func, (2,), {"b": "world"}, key_params=["a"])
+    assert key1 != key3
+
+    # Keys should be the same because 'b' and 'c' are ignored
+    key4 = generate_key(
+        sample_func, (), {"a": 1, "b": "another", "c": True}, key_params=["a"]
+    )
+    assert key1 == key4
 
 
 # Tests for the @cached decorator
@@ -130,6 +152,43 @@ async def test_cached_with_ttl(memory_cache_backend):
 
     # Third call (after TTL), should execute again
     await timed_function(1)
+    assert call_count == 2
+
+
+def test_cached_key_func_and_key_params_exclusive(memory_cache_backend):
+    """Test that providing both key_func and key_params raises an error."""
+    with pytest.raises(ValueError):
+
+        @cached(
+            backend=memory_cache_backend,
+            key_func=lambda f, *a, **kw: "",
+            key_params=["a"],
+        )
+        async def some_function(a: int) -> SimpleData:
+            return SimpleData(value="test")
+
+
+@pytest.mark.asyncio
+async def test_cached_with_key_params(memory_cache_backend):
+    """Test that the decorator correctly uses key_params to generate the key."""
+    call_count = 0
+
+    @cached(backend=memory_cache_backend, key_params=["a"])
+    async def selective_keyed_function(a: int, b: str) -> SimpleData:
+        nonlocal call_count
+        call_count += 1
+        return SimpleData(value=f"{a}-{b}")
+
+    # First call
+    await selective_keyed_function(1, "one")
+    assert call_count == 1
+
+    # Second call with same key_param, should be cached
+    await selective_keyed_function(1, "two")
+    assert call_count == 1
+
+    # Third call with different key_param, should execute again
+    await selective_keyed_function(2, "one")
     assert call_count == 2
 
 

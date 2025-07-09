@@ -34,6 +34,7 @@ class AiohttpCrawler:
         self.url_filter = url_filter
         self._start_url_host: str
         self._visited: set[HttpUrl] = set()
+        self._processed_urls: set[HttpUrl] = set()
         self._queue: asyncio.Queue[HttpUrl] = asyncio.Queue()
         self._lock = asyncio.Lock()
         self._semaphore = asyncio.Semaphore(max_concurrency)
@@ -51,7 +52,7 @@ class AiohttpCrawler:
                     return
 
         async with self._lock:
-            self._visited.add(url)
+            self._processed_urls.add(url)
 
         for url_str in extract_urls(text):
             if not re.match(r"^https?://", url_str):
@@ -62,7 +63,7 @@ class AiohttpCrawler:
             except ValidationError:
                 continue
 
-            host = urlparse(url_str).netloc
+            host = urlparse(str(next_url)).netloc
             async with self._lock:
                 if next_url not in self._visited and host == self._start_url_host:
                     self._visited.add(next_url)
@@ -71,6 +72,7 @@ class AiohttpCrawler:
     async def run(self, start_url: HttpUrl) -> CrawlResult:
         date = datetime.now()
         self._queue.put_nowait(start_url)
+        self._visited.add(start_url)
         self._start_url_host = urlparse(str(start_url)).netloc
 
         while not self._queue.empty():
@@ -84,11 +86,13 @@ class AiohttpCrawler:
             ]
             await asyncio.gather(*tasks)
 
-        self._visited.discard(start_url)
-
         return CrawlResult(
             start_url=start_url,
             date=date,
             duration=datetime.now() - date,
-            pages={_format_url(url) for url in self._visited if self.url_filter(url)},
+            pages={
+                _format_url(url)
+                for url in self._processed_urls
+                if self.url_filter(url) and url != start_url
+            },
         )

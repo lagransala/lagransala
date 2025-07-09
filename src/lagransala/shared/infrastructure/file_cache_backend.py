@@ -39,7 +39,7 @@ class FileCacheBackend(Generic[Data]):
         except Exception:
             return None
 
-    async def set(self, key: str, value: Data, ttl: int | None = None) -> None:
+    async def set(self, key: str, value: Data, ttl: float | None = None) -> None:
         path = self._path_for_key(key)
         expiry = (time.time() + ttl) if ttl is not None else None
         payload = {"expiry": expiry, "data": value.model_dump(mode="json")}

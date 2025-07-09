@@ -54,11 +54,11 @@ async def test_set_with_ttl(cache: MemoryCacheBackend[SimpleData]):
     key = "ttl_key"
     data = SimpleData(name="ttl_test", value=1)
 
-    await cache.set(key, data, ttl=1)
+    await cache.set(key, data, ttl=0.2)
 
     assert await cache.get(key) == data
 
-    time.sleep(2)
+    time.sleep(0.3)
 
     assert await cache.get(key) is None
 

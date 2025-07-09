@@ -42,7 +42,8 @@ def build_sqlmodel_list_type(internal_type: Type[T]) -> Type[AutoString]:
                 # Test if value is valid to avoid `process_result_value` failling
                 try:
                     values = json.loads(value)
-                    assert isinstance(values, list)
+                    if not isinstance(values, list):
+                        raise ValueError("Value must be a list")
                     for v in values:
                         internal_type(v)  # type: ignore[call-arg]
                 except ValueError as e:

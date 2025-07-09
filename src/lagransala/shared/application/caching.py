@@ -46,7 +46,7 @@ def generate_key(
 
 def cached(
     backend: CacheBackend[R],
-    ttl: int | None = None,
+    ttl: float | None = None,
     key_func: Callable[Concatenate[Callable[P, Any], P], str] | None = None,
     key_params: list[str] | None = None,
 ) -> Callable[
@@ -69,6 +69,8 @@ def cached(
 
             cached_value = await backend.get(key)
             if cached_value is not None:
+                # func_name = f"{func.__module__}.{func.__qualname__}"
+                # print(f"Cache hit for {func_name}({args}, {kwargs})")
                 return cached_value
 
             result = await func(*args, **kwargs)

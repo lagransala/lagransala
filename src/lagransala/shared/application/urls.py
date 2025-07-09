@@ -1,11 +1,15 @@
 import html
 import re
 from typing import Pattern
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
 HTML_EXTENSIONS = {"/", ".html", ".htm", ".php", ".asp", ".aspx", ".jsp"}
+
+
+def absolutize_url(base: str, url: str) -> str:
+    return urljoin(base, url)
 
 
 def is_html_url(url: str) -> bool:

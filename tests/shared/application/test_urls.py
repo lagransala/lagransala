@@ -4,32 +4,6 @@ from lagransala.shared.application import extract_urls
 from lagransala.shared.application.urls import is_html_url
 
 
-@pytest.fixture
-def non_html_urls():
-    return [
-        "https://example.com/aksjdhkaj/akdsjhakjsdh/image.jpg",
-        "https://example.com/script.js",
-        "https://example.com//aa/style.css?v=1.0",
-        "https://example.com/robots.txt",
-        "https://example.com/favicon.ico",
-    ]
-
-
-@pytest.fixture
-def html_urls():
-    return [
-        "https://example.com/",
-        "https://example.com/index.html",
-        "https://example.com/page.php",
-        "https://example.com/about",
-        "https://example.com/contact/",
-        "https://example.com/faq.html",
-        "https://example.com/faq.htm",
-        "https://example.com/fichero/sad.asp",
-        "https://example.com/fichero/sad.aspx",
-    ]
-
-
 def test_is_html_url_false(non_html_urls):
     for url in non_html_urls:
         assert not is_html_url(url), f"URL {url} should not be considered HTML"

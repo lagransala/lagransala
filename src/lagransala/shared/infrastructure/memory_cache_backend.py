@@ -21,6 +21,6 @@ class MemoryCacheBackend(Generic[Data]):
 
         return entry["value"]
 
-    async def set(self, key: str, value: Data, ttl: int | None = None) -> None:
+    async def set(self, key: str, value: Data, ttl: float | None = None) -> None:
         expiry = (time.time() + ttl) if ttl is not None else None
         self._cache[key] = {"value": value, "expiry": expiry}

@@ -1,27 +1,10 @@
 import time
-from pathlib import Path
 
 import pytest
-from pydantic import BaseModel
 
 from lagransala.shared.application import cached, generate_key
-from lagransala.shared.infrastructure import FileCacheBackend, MemoryCacheBackend
 
-
-class SimpleData(BaseModel):
-    value: str
-
-
-# Fixtures for cache backends
-@pytest.fixture
-def memory_cache_backend() -> MemoryCacheBackend[SimpleData]:
-    return MemoryCacheBackend[SimpleData]()
-
-
-@pytest.fixture
-def file_cache_backend(tmp_path: Path) -> FileCacheBackend[SimpleData]:
-    cache_dir = tmp_path / "test_cache"
-    return FileCacheBackend(data_type=SimpleData, cache_dir=str(cache_dir))
+from .helpers import SimpleData
 
 
 # Tests for generate_key
@@ -175,24 +158,20 @@ async def test_cached_with_ttl(memory_cache_backend):
     """Test that the cache expires after the TTL."""
     call_count = 0
 
-    @cached(backend=memory_cache_backend, ttl=1)  # 1-second TTL
-    async def timed_function(a: int) -> SimpleData:
+    @cached(backend=memory_cache_backend, ttl=0.2)
+    async def timed_function(x: int) -> SimpleData:
         nonlocal call_count
         call_count += 1
-        return SimpleData(value=f"timed_{a}")
+        return SimpleData(value=f"timed_function({x})")
 
-    # First call
     await timed_function(1)
     assert call_count == 1
 
-    # Second call (within TTL)
     await timed_function(1)
     assert call_count == 1
 
-    # Wait for TTL to expire
-    time.sleep(1.5)
+    time.sleep(0.3)
 
-    # Third call (after TTL), should execute again
     await timed_function(1)
     assert call_count == 2
 

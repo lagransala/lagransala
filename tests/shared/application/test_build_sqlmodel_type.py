@@ -1,16 +1,9 @@
 import json
-from typing import cast
 
 import pytest
 from pydantic import HttpUrl
-from sqlalchemy import Dialect
 
 from lagransala.shared.application import build_sqlmodel_list_type, build_sqlmodel_type
-
-
-@pytest.fixture(scope="module")
-def dummy_dialect() -> Dialect:
-    return cast(Dialect, None)
 
 
 def test_build_sqlmodel_type_roundtrip_valid_str(dummy_dialect):
@@ -64,3 +57,15 @@ def test_build_sqlmodel_list_type_none(dummy_dialect):
     IntListType = build_sqlmodel_list_type(int)
     assert IntListType().process_bind_param(None, dialect=dummy_dialect) is None
     assert IntListType().process_result_value(None, dialect=dummy_dialect) is None
+
+
+def test_build_sqlmodel_list_type_bind_invalid_json_not_list_raises(dummy_dialect):
+    IntListType = build_sqlmodel_list_type(int)
+    with pytest.raises(ValueError):
+        IntListType().process_bind_param('{"a": 1}', dialect=dummy_dialect)
+
+
+def test_build_sqlmodel_list_type_bind_invalid_item_type_raises(dummy_dialect):
+    IntListType = build_sqlmodel_list_type(int)
+    with pytest.raises(ValueError):
+        IntListType().process_bind_param('[1, "a", 3]', dialect=dummy_dialect)

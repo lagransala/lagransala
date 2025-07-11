@@ -2,6 +2,7 @@ import functools
 import hashlib
 import inspect
 import json
+import logging
 from typing import Any, Callable, Concatenate, Coroutine, ParamSpec, TypeVar
 
 from pydantic import BaseModel
@@ -11,6 +12,29 @@ from lagransala.shared.domain.caching import CacheBackend, Data
 P = ParamSpec("P")
 R = TypeVar("R", bound=BaseModel)
 
+logger = logging.getLogger(__name__)
+
+
+def _get_filtered_args(
+    func: Callable[..., Any],
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+    key_params: list[str] | None,
+) -> dict[str, Any]:
+    """Bind arguments to the function signature and filter them based on key_params."""
+    sig = inspect.signature(func)
+    bound_args = sig.bind_partial(*args, **kwargs)
+    bound_args.apply_defaults()
+
+    if not key_params:
+        return bound_args.arguments
+
+    filtered_args = {}
+    for param_name in key_params:
+        if param_name in bound_args.arguments:
+            filtered_args[param_name] = bound_args.arguments[param_name]
+    return filtered_args
+
 
 def generate_key(
     func: Callable[..., Any],
@@ -19,25 +43,22 @@ def generate_key(
     key_params: list[str] | None = None,
 ) -> str:
     """Generate a cache key from a function and its arguments."""
-    # Get the fully qualified name of the function
     func_name = f"{func.__module__}.{func.__qualname__}"
 
-    sig = inspect.signature(func)
-    bound_args = sig.bind_partial(*args, **kwargs)
-    bound_args.apply_defaults()
+    relevant_args = _get_filtered_args(func, args, kwargs, key_params)
 
-    if key_params:
-        filtered_args = {}
-        for param_name in key_params:
-            if param_name in bound_args.arguments:
-                filtered_args[param_name] = bound_args.arguments[param_name]
-        key_data = {"func": func_name, "kwargs": sorted(filtered_args.items())}
-    else:
+    # If key_params are not specified, the key is based on all args and kwargs
+    if not key_params:
+        sig = inspect.signature(func)
+        bound_args = sig.bind_partial(*args, **kwargs)
+        bound_args.apply_defaults()
         key_data = {
             "func": func_name,
             "args": bound_args.args,
             "kwargs": sorted(bound_args.kwargs.items()),
         }
+    else:
+        key_data = {"func": func_name, "kwargs": sorted(relevant_args.items())}
 
     # Serialize to a JSON string and hash it for a clean, fixed-length key
     serialized_data = json.dumps(key_data, sort_keys=True, default=str).encode("utf-8")
@@ -69,8 +90,10 @@ def cached(
 
             cached_value = await backend.get(key)
             if cached_value is not None:
-                # func_name = f"{func.__module__}.{func.__qualname__}"
-                # print(f"Cache hit for {func_name}({args}, {kwargs})")
+                func_name = f"{func.__module__}.{func.__qualname__}"
+                log_params = _get_filtered_args(func, args, kwargs, key_params)
+                params_str = ", ".join(f"{k}={v!r}" for k, v in log_params.items())
+                logger.info("Cache hit for %s(%s)", func_name, params_str)
                 return cached_value
 
             result = await func(*args, **kwargs)

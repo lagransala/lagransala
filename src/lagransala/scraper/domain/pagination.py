@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Self
 
-from pydantic import UUID4, BaseModel, HttpUrl, model_validator
+from pydantic import BaseModel, HttpUrl, model_validator
 
 
 class PaginationType(Enum):
@@ -12,11 +12,8 @@ class PaginationType(Enum):
     MONTH = "month"
 
 
-type PaginationID = UUID4
-
-
 class Pagination(BaseModel):
-    id: PaginationID
+    venue_slug: str
     type: PaginationType | None = None
     url: str
     limit: int | None = None
@@ -92,7 +89,6 @@ class Pagination(BaseModel):
                 result: list[HttpUrl] = []
                 for i in range(0, self.limit):
                     month = month_start.replace(month=current_month + i)
-                    print(month)
                     url = HttpUrl(
                         self.url.format(month=month.strftime(self.date_format))
                     )

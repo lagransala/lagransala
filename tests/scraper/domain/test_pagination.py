@@ -11,14 +11,14 @@ from lagransala.scraper.domain import Pagination
 def valid_pagination_constructor_params() -> list[dict]:
     return [
         {
-            "id": uuid4(),
+            "venue_slug": "cinema",
             "type": None,
             "url": "https://cinema.com/films",
             "base_url": "https://cinema.com",
             "element_url_pattern": "/films/\\d+",
         },
         {
-            "id": uuid4(),
+            "venue_slug": "cinema2",
             "type": "simple",
             "url": "https://cinema.com/films?page={n}",
             "simple_start_from": 0,
@@ -27,7 +27,7 @@ def valid_pagination_constructor_params() -> list[dict]:
             "element_url_pattern": "/films/\\d+",
         },
         {
-            "id": uuid4(),
+            "venue_slug": "cinema3",
             "type": "day",
             "url": "https://cinema.com/films?date={date}",
             "date_format": "%Y-%m-%d",
@@ -36,7 +36,7 @@ def valid_pagination_constructor_params() -> list[dict]:
             "element_url_pattern": "/films/\\d+",
         },
         {
-            "id": uuid4(),
+            "venue_slug": "cinema4",
             "type": "month",
             "url": "https://cinema.com/films?month={month}",
             "date_format": "%Y-%m",

@@ -1,6 +1,6 @@
 from typing import Protocol, overload
 
-from lagransala.scraper.domain.pagination import Pagination, PaginationID
+from .pagination import Pagination
 
 
 class PaginationRepo(Protocol):
@@ -9,13 +9,13 @@ class PaginationRepo(Protocol):
         ...
 
     @overload
-    def get(self, id: PaginationID) -> Pagination | None: ...
+    def get(self, venue_slug: str) -> Pagination | None: ...
 
     @overload
-    def get(self, id: None = None) -> list[Pagination]: ...
+    def get(self, venue_slug: None = None) -> list[Pagination]: ...
 
     def get(
-        self, id: PaginationID | None = None
+        self, venue_slug: str | None = None
     ) -> list[Pagination] | Pagination | None:
-        """Get a pagination by its ID or all paginations if ID is None."""
+        """Get a pagination by its venue_slug or all paginations if venue_slug is None."""
         ...

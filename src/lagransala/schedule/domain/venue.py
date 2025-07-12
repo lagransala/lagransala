@@ -27,7 +27,9 @@ class Venue(SQLModel, table=True):
     location_latitude: float
     location_longitude: float
     website: HttpUrl = Field(sa_type=build_sqlmodel_type(HttpUrl))
-    schedule_url: HttpUrl | None = Field(sa_type=build_sqlmodel_type(HttpUrl))
+    schedule_url: HttpUrl | None = Field(
+        sa_type=build_sqlmodel_type(HttpUrl), default=None
+    )
 
     @field_validator("slug")
     def validate_slug(cls, v):

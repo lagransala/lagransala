@@ -14,7 +14,7 @@ class InstructorEventExtractor:
         self,
         client: instructor.AsyncInstructor,
         model: str,
-        limiter: AsyncLimiter = AsyncLimiter(10, 60),
+        limiter: AsyncLimiter | None = None,
         cache_backend: CacheBackend[EventExtractionResult] | None = None,
         cache_ttl: int | None = None,
     ):
@@ -38,7 +38,7 @@ class InstructorEventExtractor:
 
         self._client = client
         self._model = model
-        self._limiter = limiter
+        self._limiter = limiter or AsyncLimiter(10, 60)
         self._cache_backend = cache_backend
         self._cache_ttl = cache_ttl
 

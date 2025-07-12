@@ -16,6 +16,7 @@ dependencies = [
     "markdownify>=1.1.0",
     "pydantic>=2.11.3",
     "sqlmodel>=0.0.24",
+    "typer>=0.16.0",
     "urlextract>=1.9.0",
 ]
 
@@ -24,7 +25,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-lagransala= "lagransala.__main__:main"
+lagransala= "lagransala.__main__:app"
 
 [dependency-groups]
 dev = [

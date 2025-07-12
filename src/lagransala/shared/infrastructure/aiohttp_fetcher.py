@@ -23,14 +23,14 @@ class AiohttpFetcher:
         self._cache_backend = cache_backend
         self._cache_ttl = cache_ttl
 
-        if self._cache_backend is not None:
-            self.fetch = cached(
+    async def fetch(self, url: str) -> Response:
+        if self._cache_backend:
+            return await cached(
                 backend=self._cache_backend,
-                ttl=cache_ttl,
+                ttl=self._cache_ttl,
                 key_params=["url"],
-            )(self._fetch)
-        else:
-            self.fetch = self._fetch
+            )(self._fetch)(url=url)
+        return await self._fetch(url)
 
     async def _fetch(self, url: str) -> Response:
         """

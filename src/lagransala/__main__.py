@@ -1,24 +1,33 @@
 import asyncio
 import logging
 
+import typer
 from dotenv import load_dotenv
 
-from lagransala.applications import today_events_message
+from lagransala.applications import event_discovery as event_discovery_app
 
 load_dotenv()
 
-logging.basicConfig(
-    level=logging.WARNING,
-    format="%(asctime)s [%(levelname)s]: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
-logging.getLogger("lagransala").setLevel(logging.INFO)
+app = typer.Typer()
 
 
-def main():
-    asyncio.run(today_events_message())
+@app.callback()
+def callback(debug: bool = typer.Option(False, "--debug")):
+    """lagransala CLI"""
+    log_level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(asctime)s [%(levelname)s]: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logging.getLogger("lagransala").setLevel(log_level)
+
+
+@app.command("event-discovery")
+def event_discovery():
+    """Run the event discovery application."""
+    asyncio.run(event_discovery_app())
 
 
 if __name__ == "__main__":
-    main()
+    app()

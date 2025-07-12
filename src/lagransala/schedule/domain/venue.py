@@ -6,7 +6,6 @@ from uuid import uuid4
 from pydantic import UUID4, HttpUrl, field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
-from lagransala.scraper.domain.content_scraper import ContentScraper
 from lagransala.shared.application.build_sqlmodel_type import build_sqlmodel_type
 
 logger = logging.getLogger(__name__)

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from pydantic import HttpUrl, ValidationError
 

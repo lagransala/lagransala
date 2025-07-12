@@ -1,7 +1,7 @@
 import pytest
 
 from lagransala.shared.application import extract_urls
-from lagransala.shared.application.urls import is_html_url
+from lagransala.shared.application.urls import absolutize_url, is_html_url
 
 
 def test_is_html_url_false(non_html_urls):
@@ -69,3 +69,8 @@ def test_extract_urls_with_pattern():
     result = extract_urls(content, pattern)
 
     assert result == expected
+
+
+def test_absolutize_url() -> None:
+    """Test that we can absolutize a URL."""
+    assert absolutize_url("http://example.com", "/page") == "http://example.com/page"

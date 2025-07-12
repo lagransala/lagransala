@@ -1,0 +1,30 @@
+[
+    {
+        "venue_slug": "circulo-bellas-artes",
+        "main_selector": null
+    },
+    {
+        "venue_slug": "cafe-berlin",
+        "main_selector": "main"
+    },
+    {
+        "venue_slug": "tempo-club",
+        "main_selector": ".sala-seccion-eventos"
+    },
+    {
+        "venue_slug": "casa-america",
+        "main_selector": "#content"
+    },
+    {
+        "venue_slug": "cine-dore",
+        "main_selector": null
+    },
+    {
+        "venue_slug": "cineteca-madrid",
+        "main_selector": "#block-cineteca-theme-content"
+    },
+    {
+        "venue_slug": "reina-sofia",
+        "main_selector": "#main"
+    }
+]

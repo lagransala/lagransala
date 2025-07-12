@@ -1,0 +1,81 @@
+[
+        {
+            "venue_slug": "cineteca-madrid",
+            "type": "simple",
+            "url": "https://www.cinetecamadrid.com/programacion?page={n}",
+            "limit": 3,
+            "simple_start_from": 0,
+            "base_url": "https://www.cinetecamadrid.com",
+            "element_url_pattern": "^/programacion/[\\w-]+"
+        },
+        {
+            "venue_slug": "cine-dore",
+            "type": "day",
+            "url": "https://entradasfilmoteca.gob.es/Busqueda.aspx?fecha={date}",
+            "limit": 62,
+            "simple_start_from": null,
+            "date_format": "%d/%m/%Y",
+            "base_url": "https://entradasfilmoteca.gob.es",
+            "element_url_pattern": "^FichaPelicula\\.aspx\\?id=\\d+&idPelicula=\\d+"
+        },
+        {
+            "venue_slug": "reina-sofia",
+            "type": "simple",
+            "url": "https://www.museoreinasofia.es/actividades-tipos/cine-video?page={n}",
+            "limit": 3,
+            "simple_start_from": 0,
+            "date_format": null,
+            "base_url": "https://www.museoreinasofia.es",
+            "element_url_pattern": "^/actividades/[\\w-]+"
+        },
+        {
+            "venue_slug": "cafe-berlin",
+            "type": "simple",
+            "url": "https://berlincafe.es/programas/#{n}",
+            "limit": 1,
+            "simple_start_from": 0,
+            "date_format": null,
+            "base_url": "https://berlincafe.es",
+            "element_url_pattern": "^https://berlincafe.es/programa/[\\w-]+/?"
+        },
+        {
+            "venue_slug": "tempo-club",
+            "type": "simple",
+            "url": "https://madridenvivo.com/sala/tempo-audiophile-club/#{n}",
+            "limit": 1,
+            "simple_start_from": 0,
+            "date_format": null,
+            "base_url": "https://madridenvivo.com",
+            "element_url_pattern": "^https://madridenvivo.com/evento/[\\w-]+/?"
+        },
+        {
+            "venue_slug": "casa-america",
+            "type": "month",
+            "url": "https://www.casamerica.es/agenda/{month}",
+            "limit": 1,
+            "simple_start_from": null,
+            "date_format": "%Y%m",
+            "base_url": "https://www.casamerica.es/agenda/",
+            "element_url_pattern": "^/cine/[\\w-]+/?"
+        },
+        {
+            "venue_slug": "circulo-bellas-artes",
+            "type": "simple",
+            "url": "https://www.circulobellasartes.com/cine-estudio/?n={n}",
+            "limit": 1,
+            "simple_start_from": 0,
+            "date_format": null,
+            "base_url": "https://www.circulobellasartes.com",
+            "element_url_pattern": "^https://www.circulobellasartes.com/ciclos-cine/peliculas/[\\w-]+/$"
+        },
+        {
+            "venue_slug": "casa-de-mexico",
+            "type": "simple",
+            "url": "https://www.casademexico.es/cine-en-casa-de-mexico/#{n}",
+            "limit": 1,
+            "simple_start_from": 0,
+            "date_format": null,
+            "base_url": "https://www.circulobellasartes.com",
+            "element_url_pattern": "^https://www.circulobellasartes.com/ciclos-cine/peliculas/[\\w-]+/$"
+        }
+    ]

@@ -1,0 +1,65 @@
+[
+    {
+        "name": "Círculo de Bellas Artes",
+        "slug": "circulo-bellas-artes",
+        "description": "",
+        "address": "Calle de Alcalá, 42, 28014 Madrid",
+        "website": "https://circulobellasartes.com/",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
+        "name": "Café Berlín",
+        "slug": "cafe-berlin",
+        "description": "",
+        "address": "Calle de Costanilla de los Ángeles, 20, 28013 Madrid",
+        "website": "https://berlincafe.es/",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
+        "name": "Tempo audiophile club",
+        "slug": "tempo-club",
+        "description": "",
+        "address": "Calle de Vallehermoso, 79, 28015 Madrid",
+        "website": "http://www.tempoclub.es/",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
+        "name": "Casa de América",
+        "slug": "casa-america",
+        "description": "",
+        "address": "Calle de Marqués del Duero, 2, 28001 Madrid",
+        "website": "https://www.casamerica.es/",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
+        "name": "Cine Doré",
+        "slug": "cine-dore",
+        "description": "",
+        "address": "Calle de Magallanes, 3, 28015 Madrid",
+        "website": "https://filmoteca.es",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
+        "name": "Cineteca Madrid",
+        "slug": "cineteca-madrid",
+        "description": "",
+        "address": "Madrid Río, Paseo de la Chopera, 14, 28045 Madrid",
+        "website": "https://cinetecamadrid.com",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
+        "name": "Museo reina Sofía",
+        "slug": "reina-sofia",
+        "description": "",
+        "address": "Calle de Santa Isabel, 52, 28012 Madrid",
+        "website": "https://www.museoreinasofia.es",
+        "location_latitude": 0,
+        "location_longitude": 0
+    }
+]

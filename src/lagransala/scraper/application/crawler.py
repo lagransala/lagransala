@@ -5,11 +5,11 @@ from datetime import datetime
 from typing import Callable
 from urllib.parse import urljoin, urlparse
 
-import aiohttp
 from pydantic import HttpUrl, ValidationError
 
 from lagransala.scraper.domain.crawler import CrawlResult
 from lagransala.shared.application.urls import extract_urls
+from lagransala.shared.domain.fetcher import Fetcher
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +23,14 @@ def _format_url(url: str | HttpUrl) -> str:
     )
 
 
-class AiohttpCrawler:
+class Crawler:
     def __init__(
         self,
-        session: aiohttp.ClientSession,
+        fetcher: Fetcher,
         max_concurrency: int = 5,
         url_filter: Callable[[HttpUrl], bool] = lambda _: True,
     ) -> None:
-        self.session = session
+        self.fetcher = fetcher
         self.url_filter = url_filter
         self._start_url_host: str
         self._visited: set[HttpUrl] = set()
@@ -41,15 +41,15 @@ class AiohttpCrawler:
 
     async def _fetch_and_extract(self, url: HttpUrl) -> None:
         async with self._semaphore:
-            async with self.session.get(str(url)) as response:
-                if response.status != 200:
-                    return
-                if response.content_type != "text/html":
-                    return
-                try:
-                    text = await response.text()
-                except UnicodeDecodeError:
-                    return
+            response = await self.fetcher.fetch(str(url))
+
+        if response.status != 200:
+            return
+
+        if "text/html" not in response.content_type:
+            return
+
+        text = response.content
 
         async with self._lock:
             self._processed_urls.add(url)
@@ -70,7 +70,7 @@ class AiohttpCrawler:
                     await self._queue.put(next_url)
 
     async def run(self, start_url: HttpUrl) -> CrawlResult:
-        date = datetime.now()
+        start = datetime.now()
         self._queue.put_nowait(start_url)
         self._visited.add(start_url)
         self._start_url_host = urlparse(str(start_url)).netloc
@@ -88,8 +88,8 @@ class AiohttpCrawler:
 
         return CrawlResult(
             start_url=start_url,
-            date=date,
-            duration=datetime.now() - date,
+            date=start,
+            duration=datetime.now() - start,
             pages={
                 _format_url(url)
                 for url in self._processed_urls

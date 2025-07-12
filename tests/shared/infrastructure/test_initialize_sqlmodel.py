@@ -3,7 +3,7 @@ from unittest.mock import patch
 from sqlalchemy import inspect
 from sqlmodel import Field, SQLModel
 
-from lagransala.schedule.infrastructure.sqlmodel_engine import initialize_sqlmodel
+from lagransala.shared.infrastructure.initialize_sqlmodel import initialize_sqlmodel
 
 
 class DummyModel(SQLModel, table=True):

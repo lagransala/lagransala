@@ -1,3 +1,28 @@
+## v0.4.0 (2025-07-12)
+
+### Feat
+
+- **seeds**: include seed files
+- **schedule**: util to seed_venues from json
+- **shared**: extract_markdown util
+- **scraper**: ContentScraper and JsonContentScraper
+- **shared**: Fetcher and AiohttpFetcher
+- **schedule**: test initialize_sqlmodel function
+
+### Fix
+
+- **shared**: cache hit logging
+
+### Refactor
+
+- **modules**: reorganize init files and modules
+- **shared**: caching logging
+- **scraper**: pagination elements
+- **scraper**: JsonPaginationRepo
+- **scraper**: Pagination
+- **scraper**: move AiohttpCrawler from infrastructure to application and rename to Crawler
+- **shared**: move SQLModel engine initialization to shared module
+
 ## v0.3.0 (2025-07-09)
 
 ### Feat

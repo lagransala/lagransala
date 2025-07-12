@@ -51,7 +51,7 @@ class InstructorEventExtractor:
             self.extract = self._extract
 
     async def _extract(
-        self, content: str, context: dict[str, str] | None = None
+        self, content: str, _context: dict[str, str] | None = None
     ) -> EventExtractionResult:
         async with self._limiter:
             result = await self._client.chat.completions.create(

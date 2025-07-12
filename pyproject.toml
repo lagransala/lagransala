@@ -38,6 +38,7 @@ dev = [
     "pytest-asyncio",
     "pytest-cov",
     "aioresponses",
+    "import-linter"
 ]
 
 [tool.pytest.ini_options]
@@ -66,3 +67,45 @@ omit = [
     "/usr/*",
     "/nix/store/*",
     ]
+
+[tool.importlinter]
+root_package = "lagransala"
+
+[[tool.importlinter.contracts]]
+name = "Schedule layers"
+type = "layers"
+layers = [
+  "lagransala.schedule.infrastructure",
+  "lagransala.schedule.application",
+  "lagransala.schedule.domain",
+  "lagransala.shared"
+]
+
+[[tool.importlinter.contracts]]
+name = "Scraper layers"
+type = "layers"
+layers = [
+  "lagransala.scraper.infrastructure",
+  "lagransala.scraper.application",
+  "lagransala.scraper.domain",
+  "lagransala.shared"
+]
+
+[[tool.importlinter.contracts]]
+name = "Extractor layers"
+type = "layers"
+layers = [
+  "lagransala.extractor.infrastructure",
+  "lagransala.extractor.application",
+  "lagransala.extractor.domain",
+  "lagransala.shared"
+]
+
+[[tool.importlinter.contracts]]
+name = "Aislamiento entre contextos"
+type = "independence"
+modules = [
+    "lagransala.schedule",
+    "lagransala.scraper",
+    "lagransala.extractor",
+]

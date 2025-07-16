@@ -35,7 +35,7 @@ async def test_instructor_event_extractor_extract(mock_client):
 
     assert call_args.kwargs["model"] == "test-model"
     assert call_args.kwargs["messages"][1]["content"] == content
-    assert "today" in call_args.kwargs["context"]
+    assert "first_day" in call_args.kwargs["context"]
     assert result == expected_result
 
 
@@ -63,7 +63,7 @@ async def test_instructor_event_extractor_with_cache_extract(mock_client):
 
     assert call_args.kwargs["model"] == "test-model"
     assert call_args.kwargs["messages"][1]["content"] == content
-    assert "today" in call_args.kwargs["context"]
+    assert "first_day" in call_args.kwargs["context"]
     assert result == expected_result
 
     changed_result = EventExtractionResult(
@@ -78,5 +78,5 @@ async def test_instructor_event_extractor_with_cache_extract(mock_client):
 
     assert call_args.kwargs["model"] == "test-model"
     assert call_args.kwargs["messages"][1]["content"] == content
-    assert "today" in call_args.kwargs["context"]
+    assert "first_day" in call_args.kwargs["context"]
     assert result == expected_result, "result was not cached correctly"

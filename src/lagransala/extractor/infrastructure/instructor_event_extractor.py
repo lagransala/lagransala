@@ -1,4 +1,6 @@
+import logging
 from datetime import datetime
+from textwrap import dedent
 
 import instructor
 from aiolimiter import AsyncLimiter
@@ -7,6 +9,8 @@ from tenacity import AsyncRetrying, stop_after_attempt
 from lagransala.extractor.domain import EventExtractionResult
 from lagransala.shared.application.caching import cached
 from lagransala.shared.domain.caching import CacheBackend
+
+logger = logging.getLogger(__name__)
 
 
 class InstructorEventExtractor:
@@ -18,7 +22,8 @@ class InstructorEventExtractor:
         cache_backend: CacheBackend[EventExtractionResult] | None = None,
         cache_ttl: int | None = None,
     ):
-        self.system_prompt = """
+        self.system_prompt = dedent(
+            """
             You are an event extractor.
             You will receive web page content in markdown format and you
             will extract all the events present in it.
@@ -29,12 +34,13 @@ class InstructorEventExtractor:
             events. Be careful not to include the same event multiple times.
 
             If the same event occurs multiple times (has more than one date
-            and/or time), you will return multiple events with the same
-            title and description, but different time.
+            and/or time), you will include it only once in the list, with
+            the datetimes aggregated into the schedule list.
 
-            Only include events that are happening today or in the future.
-            The current date is {{ today }}.
+            Only include events that are happening from the start of this month .
+            The first day of the month was {first_day}.
         """
+        )
 
         self._client = client
         self._model = model
@@ -51,9 +57,10 @@ class InstructorEventExtractor:
             self.extract = self._extract
 
     async def _extract(
-        self, content: str, _context: dict[str, str] | None = None
+        self, content: str, context: dict[str, str] | None = None
     ) -> EventExtractionResult:
         async with self._limiter:
+            logger.debug("Extracting events from content with length %d", len(content))
             result = await self._client.chat.completions.create(
                 model=self._model,
                 max_tokens=2**14,
@@ -66,11 +73,12 @@ class InstructorEventExtractor:
                         "role": "user",
                         "content": content,
                     },
-                    # TODO: use context
                 ],
                 response_model=EventExtractionResult,
                 context={
-                    "today": datetime.strftime(datetime.now(), "%Y-%m-%d"),
+                    "first_day": datetime.strftime(
+                        datetime.now().replace(day=1), "%Y-%m-%d"
+                    ),
                 },
                 max_retries=AsyncRetrying(stop=stop_after_attempt(0), reraise=True),
             )

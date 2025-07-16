@@ -13,6 +13,7 @@ def test_event_extraction_result_with_events():
     event = EventData(
         title="Test Event",
         description="A test event.",
+        author="Test Author",
         schedule=[now],
         tags=[],
     )

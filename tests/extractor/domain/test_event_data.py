@@ -13,6 +13,7 @@ def test_event_data_creation():
     event = EventData(
         title="Test Event",
         description="A test event.",
+        author="Test Author",
         schedule=[now],
         duration=timedelta(hours=1),
         tags=["test", "event"],
@@ -21,6 +22,7 @@ def test_event_data_creation():
     )
     assert event.title == "Test Event"
     assert event.description == "A test event."
+    assert event.author == "Test Author"
     assert event.schedule == [now]
     assert event.duration == timedelta(hours=1)
     assert event.tags == ["test", "event"]
@@ -34,6 +36,7 @@ def test_event_data_defaults():
     event = EventData(
         title="Test Event",
         description="A test event.",
+        author="Test Author",
         schedule=[now],
         tags=[],
     )
@@ -49,6 +52,7 @@ def test_event_data_invalid_price():
         EventData(
             title="Test Event",
             description="A test event.",
+            author="Test Author",
             schedule=[now],
             tags=[],
             price=Decimal("10.555"),
@@ -62,6 +66,7 @@ def test_event_data_invalid_category():
         EventData(
             title="Test Event",
             description="A test event.",
+            author="Test Author",
             schedule=[now],
             tags=[],
             category="invalid_category",  # type: ignore

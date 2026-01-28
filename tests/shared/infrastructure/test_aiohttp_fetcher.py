@@ -3,6 +3,7 @@ import asyncio
 import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
+from pydantic import HttpUrl
 
 from lagransala.shared.domain.fetcher import Response
 from lagransala.shared.infrastructure.aiohttp_fetcher import AiohttpFetcher
@@ -16,11 +17,11 @@ def memory_cache_backend() -> MemoryCacheBackend[Response]:
 
 @pytest.mark.asyncio
 async def test_fetch_without_cache() -> None:
-    url = "http://example.com"
+    url = HttpUrl("http://example.com")
     content = "Hello, world!"
     async with ClientSession() as client:
         with aioresponses() as m:
-            m.get(url, status=200, body=content)
+            m.get(str(url), status=200, body=content)
             fetcher = AiohttpFetcher(client=client)
             response = await fetcher.fetch(url)
             assert response.status == 200
@@ -31,11 +32,11 @@ async def test_fetch_without_cache() -> None:
 async def test_fetch_with_cache(
     memory_cache_backend: MemoryCacheBackend[Response],
 ) -> None:
-    url = "http://example.com/cached"
+    url = HttpUrl("http://example.com/cached")
     content = "This should be cached"
     async with ClientSession() as client:
         with aioresponses() as m:
-            m.get(url, status=200, body=content, repeat=True)
+            m.get(str(url), status=200, body=content, repeat=True)
 
             fetcher = AiohttpFetcher(
                 client=client, cache_backend=memory_cache_backend, cache_ttl=60
@@ -57,13 +58,13 @@ async def test_fetch_with_cache(
 
 @pytest.mark.asyncio
 async def test_fetch_urls() -> None:
-    urls = ["http://example.com/1", "http://example.com/2"]
+    urls = [HttpUrl("http://example.com/1"), HttpUrl("http://example.com/2")]
     contents = ["Page 1", "Page 2"]
 
     async with ClientSession() as client:
         with aioresponses() as m:
-            m.get(urls[0], status=200, body=contents[0])
-            m.get(urls[1], status=200, body=contents[1])
+            m.get(str(urls[0]), status=200, body=contents[0])
+            m.get(str(urls[1]), status=200, body=contents[1])
 
             fetcher = AiohttpFetcher(client=client)
             responses = await fetcher.fetch_urls(urls)

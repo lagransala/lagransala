@@ -10,14 +10,20 @@ dependencies = [
     "aiolimiter>=1.2.1",
     "beautifulsoup4>=4.13.4",
     "crawl4ai>=0.6.0",
+    "fastapi[standard]",
+    "google-genai>=1.26.0",
+    "groq>=0.30.0",
     "instructor>=1.7.9",
     "jinaai>=0.2.10",
+    "jinja2>=3.1.6",
+    "langfuse>=3.2.1",
     "litellm>=1.67.1",
     "markdownify>=1.1.0",
     "pydantic>=2.11.3",
     "sqlmodel>=0.0.24",
     "typer>=0.16.0",
     "urlextract>=1.9.0",
+    "uvicorn>=0.35.0",
 ]
 
 [build-system]
@@ -73,7 +79,7 @@ omit = [
 root_package = "lagransala"
 
 [[tool.importlinter.contracts]]
-name = "Schedule layers"
+name = "schedule layers"
 type = "layers"
 layers = [
   "lagransala.schedule.infrastructure",
@@ -83,7 +89,7 @@ layers = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "Scraper layers"
+name = "scraper layers"
 type = "layers"
 layers = [
   "lagransala.scraper.infrastructure",
@@ -93,7 +99,7 @@ layers = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "Extractor layers"
+name = "extractor layers"
 type = "layers"
 layers = [
   "lagransala.extractor.infrastructure",
@@ -103,7 +109,7 @@ layers = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "Aislamiento entre contextos"
+name = "bounded contexts"
 type = "independence"
 modules = [
     "lagransala.schedule",

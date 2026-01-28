@@ -8,6 +8,10 @@
         "main_selector": "main"
     },
     {
+        "venue_slug": "noches-botanico",
+        "main_selector": null
+    },
+    {
         "venue_slug": "tempo-club",
         "main_selector": ".sala-seccion-eventos"
     },

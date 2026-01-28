@@ -1,12 +1,11 @@
 import hashlib
-import logging
 from datetime import datetime
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field, HttpUrl, model_validator
 
-logger = logging.getLogger(__name__)
+logger = __import__("loguru").logger
 
 
 class ContentFormat(Enum):
@@ -34,7 +33,7 @@ class SourcedContent(BaseModel):
             data["content"] = data["content"].strip()
         if data["content"] == "" and data["fmt"] != ContentFormat.EMPTY:
             logger.debug(
-                "Content is empty, setting format to EMPTY for URL: %s", data["url"]
+                f"Content is empty, setting format to EMPTY for URL: {data['url']}"
             )
             data["fmt"] = ContentFormat.EMPTY
             data["content"] = None

@@ -1,5 +1,3 @@
-import logging
-
 from groq import AsyncGroq, Groq
 from groq.types.chat import ChatCompletion
 from groq.types.chat.chat_completion import Choice
@@ -7,10 +5,9 @@ from langfuse import get_client, observe
 
 from lagransala.shared.application import cached
 from lagransala.shared.infrastructure.file_cache_backend import FileCacheBackend
+from lagransala.shared.infrastructure.logging import logger
 
 langfuse = get_client()
-
-logger = logging.getLogger(__name__)
 
 
 # Function to handle Groq chat completion calls, wrapped with @observe to log the LLM interaction
@@ -47,9 +44,9 @@ async def groq_chat_completion(client: AsyncGroq, **kwargs) -> ChatCompletion:
     )
 
     # Call the Groq model to generate a response
-    logger.debug("Calling Groq model %s", model)
+    logger.debug(f"Calling Groq model {model}")
     response: ChatCompletion = await client.chat.completions.create(**kwargs)
-    logger.debug("Received response from Groq model %s", model)
+    logger.debug(f"Received response from Groq model {model}")
 
     # Log the usage details and output content after the LLM call
     choice = response.choices[0]

@@ -1,9 +1,10 @@
 import asyncio
-import logging
+import sys
 
 import typer
 import uvicorn
 from dotenv import load_dotenv
+from loguru import logger
 
 from lagransala.applications import event_discovery as event_discovery_app
 
@@ -18,14 +19,10 @@ def callback(
     doubledebug: bool = typer.Option(False, "--ddebug", "-D"),
 ):
     """lagransala CLI"""
-    log_level = logging.DEBUG if debug else logging.INFO
-    log_level = logging.DEBUG - 1 if doubledebug else log_level
-    logging.basicConfig(
-        level=logging.WARNING,
-        format="%(asctime)s [%(levelname)s]: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+    logger.remove()
+    logger.add(
+        sys.stderr, level="TRACE" if doubledebug else ("DEBUG" if debug else "INFO")
     )
-    logging.getLogger("lagransala").setLevel(log_level)
 
 
 @app.command("event-discovery")

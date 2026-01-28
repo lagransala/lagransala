@@ -1,4 +1,3 @@
-import logging
 import re
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -9,7 +8,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from lagransala.shared.application import build_sqlmodel_type
 from lagransala.shared.domain import Slug
 
-logger = logging.getLogger(__name__)
+logger = __import__("loguru").logger
 
 if TYPE_CHECKING:
     from .event import Event

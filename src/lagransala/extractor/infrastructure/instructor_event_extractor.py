@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from textwrap import dedent
 
@@ -9,6 +8,7 @@ from tenacity import AsyncRetrying, stop_after_attempt
 
 from lagransala.shared.application import cached
 from lagransala.shared.domain import CacheBackend
+from lagransala.shared.infrastructure.logging import logger
 
 from ..domain import (
     ContentFormat,
@@ -17,8 +17,6 @@ from ..domain import (
     SourcedContent,
     SourcedEventExtraction,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class InstructorEventExtractor:
@@ -82,7 +80,7 @@ class InstructorEventExtractor:
         assert content.content is not None
         async with self._limiter:
             logger.debug(
-                "Extracting events from content with length %d", len(content.content)
+                f"Extracting events from content with length {len(content.content)}"
             )
             result = await self._client.chat.completions.create(
                 model=self._model,

@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from textwrap import dedent
 from typing import Any, Callable
@@ -6,6 +5,7 @@ from typing import Any, Callable
 from aiolimiter import AsyncLimiter
 from groq import AsyncGroq, Groq
 from langfuse import observe
+from loguru import logger
 from pydantic import ValidationError
 
 from lagransala.extractor.domain.event_extractor import (
@@ -17,8 +17,6 @@ from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedCo
 from lagransala.shared.application import cached
 from lagransala.shared.domain import CacheBackend
 from lagransala.shared.infrastructure import groq_chat_completion
-
-logger = logging.getLogger(__name__)
 
 
 def key_func(
@@ -86,7 +84,7 @@ class GroqEventExtractor:
             )
         assert content.content is not None
         async with self._limiter:
-            logger.debug("  - extracting events from %s", content.url)
+            logger.debug(f"  - extracting events from {content.url}")
             response = await groq_chat_completion(
                 self._client,
                 model=self._model,
@@ -111,7 +109,7 @@ class GroqEventExtractor:
             )
         json_response = response.choices[0].message.content
         if json_response is None:
-            logger.error("No JSON response from %s", content.url)
+            logger.error(f"No JSON response from {content.url}")
             return SourcedEventExtraction(
                 model=self._model,
                 source_url=content.url,
@@ -129,12 +127,10 @@ class GroqEventExtractor:
                 dt=datetime.now(),
             )
         except ValidationError as e:
-            logger.error("ValidationError parsing events from %s", content.url)
+            logger.error(f"ValidationError parsing events from {content.url}")
             for error in e.errors():
                 logger.error(
-                    "  > at %s: %s",
-                    ".".join(map(str, error["loc"])),
-                    error["msg"],
+                    f"  > at {'.'.join(map(str, error['loc']))}: {error['msg']}"
                 )
             return SourcedEventExtraction(
                 model=self._model,

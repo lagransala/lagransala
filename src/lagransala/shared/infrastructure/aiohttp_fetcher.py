@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from datetime import datetime
 from typing import Generator, Iterable
 
@@ -9,8 +8,7 @@ from pydantic import HttpUrl
 from ..application import cached
 from ..domain import CacheBackend
 from ..domain.fetcher import Response
-
-logger = logging.getLogger(__name__)
+from .logging import logger
 
 
 class AiohttpFetcher:
@@ -36,7 +34,7 @@ class AiohttpFetcher:
         return await self._fetch(url)
 
     async def _fetch(self, url: HttpUrl) -> Response:
-        logger.debug("fetching %s", url)
+        logger.debug(f"fetching {url}")
         async with self._semaphore:
             async with self._client.get(str(url)) as response:
                 return Response(

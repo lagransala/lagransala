@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from textwrap import dedent
 from typing import Any, Callable
@@ -16,8 +15,7 @@ from lagransala.extractor.domain.event_extractor import (
 from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedContent
 from lagransala.shared.application import cached
 from lagransala.shared.domain import CacheBackend
-
-logger = logging.getLogger(__name__)
+from lagransala.shared.infrastructure.logging import logger
 
 
 def key_func(
@@ -89,7 +87,7 @@ class GeminiEventExtractor:
             )
         assert content.content is not None
         async with self._limiter:
-            logger.debug("  - extracting events from %s", content.url)
+            logger.debug(f"  - extracting events from {content.url}")
             response = await self._client.aio.models.generate_content(
                 model=self._model,
                 contents=self.system_prompt.format(
@@ -115,12 +113,10 @@ class GeminiEventExtractor:
                 case _:
                     extraction = None
         except ValidationError as e:
-            logger.error("ValidationError parsing events from %s", content.url)
+            logger.error(f"ValidationError parsing events from {content.url}")
             for error in e.errors():
                 logger.error(
-                    "  > at %s: %s",
-                    ".".join(map(str, error["loc"])),
-                    error["msg"],
+                    f"  > at {'.'.join(map(str, error['loc']))}: {error['msg']}"
                 )
         finally:
             if extraction is None:

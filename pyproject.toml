@@ -18,6 +18,7 @@ dependencies = [
     "jinja2>=3.1.6",
     "langfuse>=3.2.1",
     "litellm>=1.67.1",
+    "loguru>=0.7.3",
     "markdownify>=1.1.0",
     "pydantic>=2.11.3",
     "sqlmodel>=0.0.24",

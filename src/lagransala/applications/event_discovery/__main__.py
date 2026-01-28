@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from datetime import datetime
 
 import aiohttp
@@ -27,6 +26,7 @@ from lagransala.shared.infrastructure import (
     FileCacheBackend,
     initialize_sqlmodel,
 )
+from lagransala.shared.infrastructure.logging import logger
 
 from . import (
     extract_events,
@@ -35,7 +35,6 @@ from . import (
     scrape_content,
 )
 
-logger = logging.getLogger(__name__)
 langfuse = get_client()
 
 
@@ -123,7 +122,7 @@ async def get_venue_events(
     )
 
     for error in filter(lambda e: isinstance(e, BaseException), extraction_results):
-        logger.error("Error during event extraction: %s", error)
+        logger.error(f"Error during event extraction: {error}")
 
     events: list[Event] = []
 
@@ -132,13 +131,11 @@ async def get_venue_events(
     ):
         assert isinstance(result, SourcedEventExtraction)
         logger.debug(
-            "     - extracted %d events from %s", len(result.events), result.source_url
+            f"     - extracted {len(result.events)} events from {result.source_url}",
         )
         for event_data in result.events:
             logger.debug(
-                "       - %s (%s)",
-                event_data.title,
-                [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in event_data.schedule],
+                f"       - {event_data.title} ({[dt.strftime('%Y-%m-%d %H:%M:%S') for dt in event_data.schedule]})"
             )
             events.append(
                 Event(
@@ -180,7 +177,7 @@ def initialize_groq_extractor():
         # "meta-llama/llama-4-scout-17b-16e-instruct",
         # "meta-llama/llama-4-scout-17b-16e-instruct",
         # "meta-llama/llama-guard-4-12b",
-        "moonshotai/kimi-k2-instruct",
+        "openai/gpt-oss-120b",
         # "qwen/qwen3-32b",
         limiter=AsyncLimiter(30),
         cache_backend=FileCacheBackend(
@@ -195,7 +192,7 @@ async def main():
     venues = sorted(list(await load_venues(db_engine)), key=lambda v: v.name)
     json_pagination_repo = JsonPaginationRepo("./seeds/paginations.json")
     content_scraper_repo = JsonContentScraperRepo("./seeds/content_scrapers.json")
-    logger.info("Loaded %d venues", len(venues))
+    logger.info(f"Loaded {len(venues)} venues")
 
     # event_extractor = initialize_instructor_extractor()
     event_extractor = initialize_groq_extractor()
@@ -209,7 +206,7 @@ async def main():
         session.commit()
 
         for venue in venues:
-            logger.info("- Processing venue: %s", venue.slug)
+            logger.info(f"- Processing venue: {venue.slug}")
             pagination = get_venue_pagination(json_pagination_repo, venue)
             scraper = get_venue_content_scraper(content_scraper_repo, venue)
 
@@ -222,7 +219,7 @@ async def main():
 
             events = await get_venue_events(venue, pagination, scraper, event_extractor)
 
-            logger.info("- Adding %d events for venue: %s", len(events), venue.slug)
+            logger.info(f"- Adding {len(events)} events for venue: {venue.slug}")
             with Session(db_engine) as session:
                 for event in events:
                     session.add(event)

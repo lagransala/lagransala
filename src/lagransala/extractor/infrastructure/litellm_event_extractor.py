@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from textwrap import dedent
 
@@ -13,8 +12,7 @@ from lagransala.extractor.domain.event_extractor import (
 from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedContent
 from lagransala.shared.application.caching import cached
 from lagransala.shared.domain import CacheBackend
-
-logger = logging.getLogger(__name__)
+from lagransala.shared.infrastructure.logging import logger
 
 
 class LitellmEventExtractor:
@@ -80,7 +78,7 @@ class LitellmEventExtractor:
         assert content.content is not None
         async with self._limiter:
             logger.debug(
-                "Extracting events from content with length %d", len(content.content)
+                f"Extracting events from content with length {len(content.content)}"
             )
             response = self._litellm.completion(
                 model=self._model,

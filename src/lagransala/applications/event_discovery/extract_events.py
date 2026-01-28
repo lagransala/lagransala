@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from datetime import datetime
 from typing import Generator, Iterable
 
@@ -10,8 +9,7 @@ from lagransala.extractor.domain import (
     SourcedContent,
     SourcedEventExtraction,
 )
-
-logger = logging.getLogger(__name__)
+from lagransala.shared.infrastructure.logging import logger
 
 
 def extract_event(
@@ -25,13 +23,13 @@ def extract_event(
                 event = await extractor.extract(content)
             except Exception as e:
                 logger.error(
-                    "Error extracting events from %s", content.url, exc_info=True
+                    f"Error extracting events from {content.url}", exc_info=True
                 )
                 raise e from e
             logger.info(f"Extracted {len(event.events)} events from {content.url}")
             return event
         else:
-            logger.warning("No content found at %s", content.url)
+            logger.warning(f"No content found at {content.url}")
             return SourcedEventExtraction(
                 model=None,
                 source_url=content.url,

@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import re
 from datetime import datetime
 from typing import Callable
@@ -10,8 +9,7 @@ from pydantic import HttpUrl, ValidationError
 from lagransala.scraper.domain.crawler import CrawlResult
 from lagransala.shared.application.urls import extract_urls
 from lagransala.shared.domain.fetcher import Fetcher
-
-logger = logging.getLogger(__name__)
+from lagransala.shared.infrastructure.logging import logger
 
 
 def _format_url(url: str | HttpUrl) -> str:

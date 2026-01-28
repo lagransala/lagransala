@@ -1,12 +1,11 @@
-import logging
 from pathlib import Path
 
 from pydantic import TypeAdapter, ValidationError
 from sqlmodel import Session, select
 
-from ..domain import Venue
+from lagransala.shared.infrastructure.logging import logger
 
-logger = logging.getLogger(__name__)
+from ..domain import Venue
 
 
 def seed_venues(session: Session, seed_path: Path | str):
@@ -14,7 +13,7 @@ def seed_venues(session: Session, seed_path: Path | str):
     if session.exec(select(Venue)).first():
         logger.info("Venue table not empty, skipping seeding.")
         return
-    logger.info("Seeding venues from %s", seed_path)
+    logger.info(f"Seeding venues from {seed_path}")
 
     adapter = TypeAdapter(list[Venue])
     with open(seed_path, "r") as file:
@@ -24,9 +23,7 @@ def seed_venues(session: Session, seed_path: Path | str):
                 Venue.model_validate(venue)
         except ValidationError as e:
             for error in e.errors():
-                logger.error(
-                    "Error in %s: %s: %s", seed_path, error["loc"], error["msg"]
-                )
+                logger.error(f"Error in {seed_path}: {error['loc']}: {error['msg']}")
             raise ValueError(f"Invalid JSON in {seed_path}: {e}") from e
     session.add_all(venues)
     session.commit()

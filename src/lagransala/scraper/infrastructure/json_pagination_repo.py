@@ -1,12 +1,10 @@
-import logging
 from pathlib import Path
 from typing import overload
 
 from pydantic import TypeAdapter, ValidationError
 
 from lagransala.scraper.domain.pagination import Pagination
-
-logger = logging.getLogger(__name__)
+from lagransala.shared.infrastructure.logging import logger
 
 
 class JsonPaginationRepo:
@@ -49,7 +47,7 @@ class JsonPaginationRepo:
             except ValidationError as e:
                 for error in e.errors():
                     logger.error(
-                        "Error in %s: %s: %s", self._file, error["loc"], error["msg"]
+                        f"Error in {self._file}: {error['loc']}: {error['msg']}"
                     )
                 raise ValueError(f"Error validating json {self._file}: {e}") from e
         if venue_slug:

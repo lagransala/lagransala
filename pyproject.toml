@@ -1,6 +1,6 @@
 [project]
 name = "lagransala"
-version = "0.5.0"
+version = "0.5.1"
 description = "Cartelera"
 readme = "README.md"
 requires-python = ">=3.13"

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-white text-zinc-800">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <title>La Gran Sala - Calendario</title>
+</head>
+
+<body class="antialiased h-screen flex overflow-hidden">
+
+    <!-- Main Content Pane -->
+    <div class="flex-1 flex flex-col">
+        <header class="px-12 py-4 border-b border-zinc-200 flex-shrink-0">
+            <h1 class="text-2xl font-bold">La Gran Sala</h1>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-12 py-4">
+            <div class="h-full flex flex-col">
+                <div class="space-y-4">
+                    {% for date, times in event_data.items() %}
+                        <div class="bg-white py-2">
+                            <h3 class="font-bold text-lg">{{ format_date_spanish(date) }}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            {% for time, events in times.items() %}
+                                <div class="space-y-2">
+                                    {% for event in events %}
+                                    <div class="py-1">
+                                        {% set unique_id = date ~ '-' ~ time ~ '-' ~ loop.index %}
+                                        <div class="flex items-baseline space-x-4 cursor-pointer" onclick="toggleDetails('{{ unique_id }}')">
+                                            <div class="w-16 text-zinc-600 font-semibold">{{ time }}</div>
+                                            <div>
+                                                <span class="text-zinc-500">{{ event.venue.name }}</span> - <span class="font-bold">{{ event.title }}</span>
+                                            </div>
+                                        </div>
+                                        <div id="details-{{ unique_id }}" class="max-h-0 overflow-hidden transition-all duration-150 ease-in max-w-[60rem]">
+                                            <div class="space-y-2 pt-2 pb-3">
+                                                {% if event.description %}
+                                                    <p class="text-zinc-700">{{ event.description }}</p>
+                                                {% endif %}
+                                                {% if event.duration %}
+                                                    <p class="text-zinc-500">Duración: {{ event.duration }}</p>
+                                                {% endif %}
+                                                {% if event.author %}
+                                                    <p class="text-zinc-500">Autor: {{ event.author }}</p>
+                                                {% endif %}
+                                                <a href="{{ event.url }}" target="_blank" class="text-zinc-600 hover:underline">Ver en {{ event.url | url_domain }}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="w-80 lg:w-96 xl:w-1/3 border-l border-zinc-200 bg-zinc-50 p-4 flex-shrink-0">
+        <h3 class="text-lg font-semibold">Event Details</h3>
+        <!-- Placeholder for event details -->
+    </aside>
+
+<script>
+function toggleDetails(eventId) {
+    const detailsDiv = document.getElementById('details-' + eventId);
+    if (detailsDiv) {
+        if (detailsDiv.style.maxHeight) {
+            detailsDiv.style.maxHeight = null;
+        } else {
+            detailsDiv.style.maxHeight = detailsDiv.scrollHeight + "px";
+        }
+    }
+}
+</script>
+</body>
+
+</html>

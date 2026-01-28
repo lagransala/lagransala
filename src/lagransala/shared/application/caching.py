@@ -2,17 +2,15 @@ import functools
 import hashlib
 import inspect
 import json
-import logging
 from typing import Any, Callable, Concatenate, Coroutine, ParamSpec, TypeVar
 
+from loguru import logger
 from pydantic import BaseModel
 
-from lagransala.shared.domain.caching import CacheBackend, Data
+from ..domain import CacheBackend
 
 P = ParamSpec("P")
 R = TypeVar("R", bound=BaseModel)
-
-logger = logging.getLogger(__name__)
 
 
 def _get_filtered_args(
@@ -92,14 +90,14 @@ def cached(
 
             func_name = f"{func.__module__}.{func.__qualname__}"
             params_str = ", ".join(
-                f"{k}={v!r}"
+                f"{k}={(v[:37] + '...' if isinstance(v, str) and len(v) > 40 else v)!r}"
                 for k, v in _get_filtered_args(func, args, kwargs, key_params).items()
             )
 
             if cached_value is not None:
-                logger.debug("Cache hit for %s(%s)", func_name, params_str)
+                logger.debug(f"cache hit for {func_name}({params_str})")
                 return cached_value
-            logger.debug("Cache miss for %s(%s)", func_name, params_str)
+            logger.debug(f"cache miss for {func_name}({params_str})")
 
             result = await func(*args, **kwargs)
             await backend.set(key, result, ttl=ttl)

@@ -1,5 +1,6 @@
 import html
 import re
+from datetime import datetime
 from typing import Pattern
 from urllib.parse import urljoin, urlparse
 
@@ -39,3 +40,20 @@ def extract_urls(
     if pattern:
         urls = {url for url in urls if pattern.match(url)}
     return urls
+
+
+def extract_dates(content: str) -> list[datetime]:
+    pattern = r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2})?"
+    matches = re.findall(pattern, content)
+
+    results = []
+    for m in matches:
+        try:
+            if "T" in m:
+                dt = datetime.strptime(m, "%Y-%m-%dT%H:%M:%S")
+            else:
+                dt = datetime.strptime(m, "%Y-%m-%d")
+            results.append(dt)
+        except ValueError:
+            continue
+    return results

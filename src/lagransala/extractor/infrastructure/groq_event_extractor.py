@@ -1,29 +1,35 @@
 from datetime import datetime
 from textwrap import dedent
+from typing import Any, Callable
 
-import instructor
 from aiolimiter import AsyncLimiter
+from groq import AsyncGroq, Groq
 from langfuse import observe
 from loguru import logger
-from tenacity import AsyncRetrying, stop_after_attempt
+from pydantic import ValidationError
 
-from lagransala.shared.application import cached
-from lagransala.shared.domain import CacheBackend
-
-from ..domain import (
-    ContentFormat,
+from lagransala.extractor.domain.event_extractor import (
     EmptyReason,
     EventExtraction,
-    SourcedContent,
     SourcedEventExtraction,
 )
+from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedContent
+from lagransala.shared.application import cached
+from lagransala.shared.domain import CacheBackend
+from lagransala.shared.infrastructure import groq_chat_completion
 
 
-class InstructorEventExtractor:
+def key_func(
+    _f: Callable, content: SourcedContent, context: dict[str, str] | None = None
+) -> str:
+    return content.cache_key
+
+
+class GroqEventExtractor:
     def __init__(
         self,
-        client: instructor.AsyncInstructor,
         model: str,
+        client: AsyncGroq | None = None,
         limiter: AsyncLimiter | None = None,
         cache_backend: CacheBackend[SourcedEventExtraction] | None = None,
         cache_ttl: int | None = None,
@@ -46,12 +52,13 @@ class InstructorEventExtractor:
             The first day of the month was {first_day}.
         """)
 
-        self._client = client
+        self._client = client or AsyncGroq()
         self._model = model
         self._limiter = limiter or AsyncLimiter(10, 60)
         self._cache_backend = cache_backend
         self._cache_ttl = cache_ttl
 
+    @observe()
     async def extract(
         self, content: SourcedContent, context: dict[str, str] | None = None
     ) -> SourcedEventExtraction:
@@ -59,54 +66,76 @@ class InstructorEventExtractor:
             return await cached(
                 backend=self._cache_backend,
                 ttl=self._cache_ttl,
-            )(
-                self._extract
-            )(content, context)
+                key_func=key_func,
+            )(self._extract)(content, context)
         else:
             return await self._extract(content, context)
 
-    @observe()
     async def _extract(
         self, content: SourcedContent, context: dict[str, str] | None = None
     ) -> SourcedEventExtraction:
         if content.fmt == ContentFormat.EMPTY:
             return SourcedEventExtraction(
+                model=self._model,
                 source_url=content.url,
                 events=[],
                 empty_reason=EmptyReason.EMPTY_CONTENT,
-                model=self._model,
                 dt=datetime.now(),
             )
         assert content.content is not None
         async with self._limiter:
-            logger.debug(
-                f"Extracting events from content with length {len(content.content)}"
-            )
-            result = await self._client.chat.completions.create(
+            logger.debug(f"  - extracting events from {content.url}")
+            response = await groq_chat_completion(
+                self._client,
                 model=self._model,
-                max_tokens=2**14,
                 messages=[
                     {
                         "role": "system",
-                        "content": self.system_prompt,
+                        "content": self.system_prompt.format(
+                            first_day=datetime.strftime(
+                                datetime.now().replace(day=1), "%Y-%m-%d"
+                            ),
+                        ),
                     },
-                    {
-                        "role": "user",
-                        "content": content.content,
-                    },
+                    {"role": "user", "content": content.content},
                 ],
-                response_model=EventExtraction,
-                context={
-                    "first_day": datetime.strftime(
-                        datetime.now().replace(day=1), "%Y-%m-%d"
-                    ),
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "event",
+                        "schema": EventExtraction.model_json_schema(),
+                    },
                 },
-                max_retries=AsyncRetrying(stop=stop_after_attempt(0), reraise=True),
             )
+        json_response = response.choices[0].message.content
+        if json_response is None:
+            logger.error(f"No JSON response from {content.url}")
             return SourcedEventExtraction(
-                source_url=content.url,
-                events=result.events,
-                empty_reason=result.empty_reason,
                 model=self._model,
+                source_url=content.url,
+                events=[],
+                empty_reason=EmptyReason.EXTRACTION_ERROR,
+                dt=datetime.now(),
+            )
+        try:
+            event_extraction = EventExtraction.model_validate_json(json_response)
+            return SourcedEventExtraction(
+                model=self._model,
+                source_url=content.url,
+                events=event_extraction.events,
+                empty_reason=event_extraction.empty_reason,
+                dt=datetime.now(),
+            )
+        except ValidationError as e:
+            logger.error(f"ValidationError parsing events from {content.url}")
+            for error in e.errors():
+                logger.error(
+                    f"  > at {'.'.join(map(str, error['loc']))}: {error['msg']}"
+                )
+            return SourcedEventExtraction(
+                model=self._model,
+                source_url=content.url,
+                events=[],
+                empty_reason=EmptyReason.EXTRACTION_ERROR,
                 dt=datetime.now(),
             )

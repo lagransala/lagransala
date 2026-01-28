@@ -9,6 +9,15 @@
         "location_longitude": 0
     },
     {
+        "name": "Noches del Botánico",
+        "slug": "noches-botanico",
+        "description": "",
+        "address": "",
+        "website": "https://nochesdelbotanico.com/",
+        "location_latitude": 0,
+        "location_longitude": 0
+    },
+    {
         "name": "Café Berlín",
         "slug": "cafe-berlin",
         "description": "",

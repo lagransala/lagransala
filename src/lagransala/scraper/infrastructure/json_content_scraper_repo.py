@@ -1,12 +1,10 @@
-import logging
 from pathlib import Path
 from typing import overload
 
+from loguru import logger
 from pydantic import TypeAdapter, ValidationError
 
 from ..domain import ContentScraper
-
-logger = logging.getLogger(__name__)
 
 
 class JsonContentScraperRepo:
@@ -49,7 +47,7 @@ class JsonContentScraperRepo:
             except ValidationError as e:
                 for error in e.errors():
                     logger.error(
-                        "Error in %s: %s: %s", self._file, error["loc"], error["msg"]
+                        f"Error in {self._file}: {error['loc']}: {error['msg']}"
                     )
                 raise ValueError(f"Error validating json {self._file}: {e}") from e
         if venue_slug:

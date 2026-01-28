@@ -1,76 +1,58 @@
 import asyncio
-import logging
-from dataclasses import dataclass
+from datetime import datetime
 
 import aiohttp
 import instructor
 from aiolimiter import AsyncLimiter
-from litellm import acompletion
+from groq import AsyncGroq, Groq
+from langfuse import get_client, observe
+from loguru import logger
+from sqlalchemy import Engine
 from sqlmodel import Session, select
 
-from lagransala.extractor.domain import EventExtractionResult
-from lagransala.extractor.infrastructure import InstructorEventExtractor
-from lagransala.schedule.application import (
-    seed_venues,
+from lagransala.extractor.domain import EventExtractor, SourcedEventExtraction
+from lagransala.extractor.infrastructure import (
+    GroqEventExtractor,
+    InstructorEventExtractor,
 )
-from lagransala.schedule.domain import Venue
+from lagransala.schedule.application import seed_venues
+from lagransala.schedule.domain import Event, EventDateTime, Venue
 from lagransala.scraper.application import pagination_elements
-from lagransala.scraper.domain.content_scraper_repo import ContentScraperRepo
+from lagransala.scraper.domain import ContentScraper, Pagination
 from lagransala.scraper.infrastructure import JsonContentScraperRepo, JsonPaginationRepo
-from lagransala.shared.application import extract_markdown
-from lagransala.shared.domain import coroutine_with_data
-from lagransala.shared.domain.fetcher import Response
-from lagransala.shared.infrastructure import FileCacheBackend
-from lagransala.shared.infrastructure.aiohttp_fetcher import AiohttpFetcher
-from lagransala.shared.infrastructure.initialize_sqlmodel import initialize_sqlmodel
+from lagransala.shared.application.urls import extract_dates
+from lagransala.shared.domain import FetcherResponse
+from lagransala.shared.infrastructure import (
+    AiohttpFetcher,
+    FileCacheBackend,
+    initialize_sqlmodel,
+)
 
-from .get_venue_content_scraper import get_venue_content_scraper
-from .get_venue_pagination import get_venue_pagination
+from . import (
+    extract_events,
+    get_venue_content_scraper,
+    get_venue_pagination,
+    scrape_content,
+)
 
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class State:
-    url: str
-    venue: Venue
-    content: str | None = None
-    extraction_result: EventExtractionResult | None = None
-
-    def with_content(self, content: str):
-        return State(
-            url=self.url,
-            venue=self.venue,
-            content=content,
-            extraction_result=self.extraction_result,
-        )
-
-    def with_extraction_result(self, result: EventExtractionResult):
-        return State(
-            url=self.url,
-            venue=self.venue,
-            content=self.content,
-            extraction_result=result,
-        )
-
-    def md_content(self, repo: ContentScraperRepo) -> str | None:
-        if self.content is None:
-            return None
-        main_selector = get_venue_content_scraper(repo, self.venue).main_selector
-        if main_selector is None:
-            return None
-        return extract_markdown(self.content, main_selector)
+langfuse = get_client()
 
 
-async def main():
-
-    db_engine = initialize_sqlmodel("sqlite:///./lagransala.db")
-
+async def load_venues(db_engine: Engine):
     with Session(db_engine) as session:
         seed_venues(session, "./seeds/venues.json")
         venues = session.exec(select(Venue).order_by(Venue.name)).all()
-        logger.info("Found %d venues", len(venues))
+    return venues
 
+
+@observe()
+async def get_venue_events(
+    venue: Venue,
+    pagination: Pagination,
+    scraper: ContentScraper,
+    event_extractor: EventExtractor,
+):
+    langfuse.update_current_trace(tags=[venue.slug])
     async with aiohttp.ClientSession(
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -80,64 +62,165 @@ async def main():
             "Connection": "keep-alive",
         }
     ) as client:
-        fetcher = AiohttpFetcher(
+        pagination_fetcher = AiohttpFetcher(
             client,
-            cache_backend=FileCacheBackend(Response, cache_dir=".cache/extract"),
-            cache_ttl=3600 * 24,  # 1 day
+            cache_backend=FileCacheBackend(FetcherResponse, cache_dir=".cache/fetch"),
+            cache_ttl=600,  # 10mins
         )
 
-        pagination_repo = JsonPaginationRepo("./seeds/paginations.json")
+        logger.info("   - Fetching venue pages")
+        pages = await pagination_elements(pagination_fetcher, pagination)
 
-        state: list[State] = []
+        content_fetcher = AiohttpFetcher(
+            client,
+            cache_backend=FileCacheBackend(FetcherResponse, cache_dir=".cache/fetch"),
+            cache_ttl=3600 * 23,  # 23 hours
+        )
 
-        logger.info("1. Fetching page list")
+        logger.info("   - Fetching page contents")
+        responses = await asyncio.gather(*content_fetcher.fetch_urls_tasks(pages))
 
-        for venue in venues:
-            pagination = get_venue_pagination(pagination_repo, venue)
-            urls = await pagination_elements(fetcher, pagination)
-            logger.info("Found %d pages for venue '%s'", len(urls), venue.name)
-            for url in urls:
-                state.append(State(url=url, venue=venue))
-
-        logger.info("2. Fetching pages")
-
-        tasks = [
-            asyncio.create_task(
-                coroutine_with_data(
-                    fetcher.fetch(el.url),
-                    el,
-                    lambda content, el: el.with_content(content.content),
-                )
-            )
-            for el in state
-        ]
-        state = await asyncio.gather(*tasks)
-
-    logger.info("3. Extracting events")
-
-    instructor_client = instructor.from_litellm(acompletion, mode=instructor.Mode.JSON)
-
-    event_extractor = InstructorEventExtractor(
-        instructor_client,
-        "gemini/gemini-2.5-flash",
-        AsyncLimiter(15),
-        cache_backend=FileCacheBackend(
-            EventExtractionResult, cache_dir=".cache/extract"
+    logger.info("   - Scraping page contents")
+    sourced_contents = scrape_content(scraper, responses)
+    distant_future = datetime.now().replace(year=5000)
+    sourced_contents = sorted(
+        list(sourced_contents),
+        key=lambda x: (
+            min(extract_dates(x.content), default=distant_future)
+            if x.content
+            else distant_future
         ),
     )
 
-    content_scraper_repo = JsonContentScraperRepo("./seeds/content_scrapers.json")
+    logger.info("   - Extracting event data")
+    # for extraction_result in asyncio.as_completed(
+    #     extract_events(event_extractor, sourced_contents)
+    # ):
+    #     try:
+    #         extraction = await extraction_result
+    #     except Exception:
+    #         logger.error("Error during event extraction", exc_info=True)
+    #     else:
+    #         logger.info(
+    #             "     - Extracted %d events from %s",
+    #             len(extraction.events),
+    #             extraction.source_url,
+    #         )
+    #         for event_data in extraction.events:
+    #             yield Event(
+    #                 venue_id=venue.id,
+    #                 schedule=[EventDateTime(datetime=dt) for dt in event_data.schedule],
+    #                 author=event_data.author,
+    #                 url=extraction.source_url,
+    #                 title=event_data.title,
+    #                 description=event_data.description,
+    #                 duration=event_data.duration,
+    #             )
 
-    tasks = [
-        asyncio.create_task(
-            coroutine_with_data(
-                event_extractor.extract(el.md_content(content_scraper_repo) or ""),
-                el,
-                lambda result, el: el.with_extraction_result(result),
-            )
+    extraction_results = await asyncio.gather(
+        *extract_events(event_extractor, sourced_contents), return_exceptions=True
+    )
+
+    for error in filter(lambda e: isinstance(e, BaseException), extraction_results):
+        logger.error(f"Error during event extraction: {error}")
+
+    events: list[Event] = []
+
+    for result in filter(
+        lambda r: isinstance(r, SourcedEventExtraction), extraction_results
+    ):
+        assert isinstance(result, SourcedEventExtraction)
+        logger.debug(
+            f"     - extracted {len(result.events)} events from {result.source_url}",
         )
-        for el in state
-        if el.md_content is not None
-    ]
+        for event_data in result.events:
+            logger.debug(
+                f"       - {event_data.title} ({[dt.strftime('%Y-%m-%d %H:%M:%S') for dt in event_data.schedule]})"
+            )
+            events.append(
+                Event(
+                    venue_id=venue.id,
+                    schedule=[EventDateTime(datetime=dt) for dt in event_data.schedule],
+                    author=event_data.author,
+                    url=result.source_url,
+                    title=event_data.title,
+                    description=event_data.description,
+                    duration=event_data.duration,
+                )
+            )
+    return events
 
-    state = await asyncio.gather(*tasks)
+
+def initialize_instructor_extractor():
+    from litellm import litellm
+
+    litellm.success_callback = ["langfuse"]
+    litellm.failure_callback = ["langfuse"]
+    litellm._turn_on_debug()  # type: ignore[attr-defined]
+
+    instructor_client = instructor.from_litellm(
+        litellm.acompletion, mode=instructor.Mode.JSON
+    )
+
+    return InstructorEventExtractor(
+        instructor_client,
+        "groq/meta-llama/llama-4-scout-17b-16e-instruct",
+        AsyncLimiter(8),
+        cache_backend=FileCacheBackend(
+            SourcedEventExtraction, cache_dir=".cache/extract"
+        ),
+    )
+
+
+def initialize_groq_extractor():
+    return GroqEventExtractor(
+        # "meta-llama/llama-4-scout-17b-16e-instruct",
+        # "meta-llama/llama-4-scout-17b-16e-instruct",
+        # "meta-llama/llama-guard-4-12b",
+        "openai/gpt-oss-120b",
+        # "qwen/qwen3-32b",
+        limiter=AsyncLimiter(30),
+        cache_backend=FileCacheBackend(
+            SourcedEventExtraction, cache_dir=".cache/extract"
+        ),
+    )
+
+
+async def main():
+    # db_engine = initialize_sqlmodel("sqlite:///:memory:")
+    db_engine = initialize_sqlmodel("sqlite:///lagransala.db")
+    venues = sorted(list(await load_venues(db_engine)), key=lambda v: v.name)
+    json_pagination_repo = JsonPaginationRepo("./seeds/paginations.json")
+    content_scraper_repo = JsonContentScraperRepo("./seeds/content_scrapers.json")
+    logger.info(f"Loaded {len(venues)} venues")
+
+    # event_extractor = initialize_instructor_extractor()
+    event_extractor = initialize_groq_extractor()
+
+    with Session(db_engine) as session:
+        old_events = session.exec(select(Event)).all()
+        for event in old_events:
+            for dt in event.schedule:
+                session.delete(dt)
+            session.delete(event)
+        session.commit()
+
+        for venue in venues:
+            logger.info(f"- Processing venue: {venue.slug}")
+            pagination = get_venue_pagination(json_pagination_repo, venue)
+            scraper = get_venue_content_scraper(content_scraper_repo, venue)
+
+            #     async for event in get_venue_events(
+            #         venue, pagination, scraper, event_extractor
+            #     ):
+            #         logger.info("Saving event: %s", event.title)
+            #         session.add(event)
+            #         session.commit()
+
+            events = await get_venue_events(venue, pagination, scraper, event_extractor)
+
+            logger.info(f"- Adding {len(events)} events for venue: {venue.slug}")
+            with Session(db_engine) as session:
+                for event in events:
+                    session.add(event)
+                session.commit()

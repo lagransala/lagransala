@@ -1,17 +1,15 @@
 import asyncio
-import logging
 import re
 from datetime import datetime
 from typing import Callable
 from urllib.parse import urljoin, urlparse
 
+from loguru import logger
 from pydantic import HttpUrl, ValidationError
 
 from lagransala.scraper.domain.crawler import CrawlResult
 from lagransala.shared.application.urls import extract_urls
 from lagransala.shared.domain.fetcher import Fetcher
-
-logger = logging.getLogger(__name__)
 
 
 def _format_url(url: str | HttpUrl) -> str:
@@ -41,7 +39,7 @@ class Crawler:
 
     async def _fetch_and_extract(self, url: HttpUrl) -> None:
         async with self._semaphore:
-            response = await self.fetcher.fetch(str(url))
+            response = await self.fetcher.fetch(url)
 
         if response.status != 200:
             return

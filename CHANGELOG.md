@@ -1,3 +1,38 @@
+## v0.5.1 (2026-01-28)
+
+### Fix
+
+- fix logger imports
+
+## v0.5.0 (2026-01-28)
+
+### Feat
+
+- **seeds**: add Noches del Botánico venue and update pagination
+- **web**: add FastAPI web application
+- **extractor**: add application services for content processing
+- **extractor**: add GeminiEventExtractor and LiteLLMEventExtractor
+- **extractor**: add GroqEventExtractor
+- **extractor**: add SourcedContent domain model
+- **applications/event_discovery**: event discovery app that crawls the internet and scrapes event information with help of llm models
+
+### Fix
+
+- **extractor**: resolve pyright type checking errors
+
+### Refactor
+
+- migrate logs to loguru
+- **shared**: improve caching and url utilities
+- **schedule**: use UUID instead of UUID4 for primary keys
+- **scraper**: use HttpUrl in pagination_elements
+- **event_discovery**: modularize event discovery pipeline
+- **extractor**: rename EventExtractionResult to SourcedEventExtraction
+- **shared**: add utility types and functions
+- **shared**: rename Response to FetcherResponse and enhance Fetcher protocol
+- **extractor**: add author to EventData
+- **extractor**: change today prompt variable to first_day to only discard events from previous months
+
 ## v0.4.0 (2025-07-12)
 
 ### Feat

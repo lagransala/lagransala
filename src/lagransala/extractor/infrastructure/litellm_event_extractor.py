@@ -1,33 +1,32 @@
 from datetime import datetime
 from textwrap import dedent
 
-import instructor
 from aiolimiter import AsyncLimiter
 from langfuse import observe
 from loguru import logger
-from tenacity import AsyncRetrying, stop_after_attempt
 
-from lagransala.shared.application import cached
-from lagransala.shared.domain import CacheBackend
-
-from ..domain import (
-    ContentFormat,
+from lagransala.extractor.domain.event_extractor import (
     EmptyReason,
     EventExtraction,
-    SourcedContent,
     SourcedEventExtraction,
 )
+from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedContent
+from lagransala.shared.application.caching import cached
+from lagransala.shared.domain import CacheBackend
 
 
-class InstructorEventExtractor:
+class LitellmEventExtractor:
     def __init__(
         self,
-        client: instructor.AsyncInstructor,
         model: str,
         limiter: AsyncLimiter | None = None,
         cache_backend: CacheBackend[SourcedEventExtraction] | None = None,
         cache_ttl: int | None = None,
     ):
+        from litellm import litellm
+
+        litellm.enable_json_schema_validation = True
+        self._litellm = litellm
         self.system_prompt = dedent("""
             You are an event extractor.
             You will receive web page content in markdown format and you
@@ -46,12 +45,12 @@ class InstructorEventExtractor:
             The first day of the month was {first_day}.
         """)
 
-        self._client = client
         self._model = model
         self._limiter = limiter or AsyncLimiter(10, 60)
         self._cache_backend = cache_backend
         self._cache_ttl = cache_ttl
 
+    @observe()
     async def extract(
         self, content: SourcedContent, context: dict[str, str] | None = None
     ) -> SourcedEventExtraction:
@@ -65,7 +64,6 @@ class InstructorEventExtractor:
         else:
             return await self._extract(content, context)
 
-    @observe()
     async def _extract(
         self, content: SourcedContent, context: dict[str, str] | None = None
     ) -> SourcedEventExtraction:
@@ -82,31 +80,27 @@ class InstructorEventExtractor:
             logger.debug(
                 f"Extracting events from content with length {len(content.content)}"
             )
-            result = await self._client.chat.completions.create(
+            response = self._litellm.completion(
                 model=self._model,
-                max_tokens=2**14,
+                response_format=EventExtraction,
                 messages=[
                     {
                         "role": "system",
-                        "content": self.system_prompt,
+                        "content": self.system_prompt.format(
+                            first_day=datetime.strftime(
+                                datetime.now().replace(day=1), "%Y-%m-%d"
+                            ),
+                        ),
                     },
-                    {
-                        "role": "user",
-                        "content": content.content,
-                    },
+                    {"role": "user", "content": content.content},
                 ],
-                response_model=EventExtraction,
-                context={
-                    "first_day": datetime.strftime(
-                        datetime.now().replace(day=1), "%Y-%m-%d"
-                    ),
-                },
-                max_retries=AsyncRetrying(stop=stop_after_attempt(0), reraise=True),
             )
+            # litellm.completion with response_format returns EventExtraction instance
+            event_extraction: EventExtraction = response  # type: ignore[assignment]
             return SourcedEventExtraction(
                 source_url=content.url,
-                events=result.events,
-                empty_reason=result.empty_reason,
+                events=event_extraction.events,
+                empty_reason=event_extraction.empty_reason,
                 model=self._model,
                 dt=datetime.now(),
             )

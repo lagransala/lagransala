@@ -11,6 +11,9 @@ class EventData(BaseModel):
     schedule: list[datetime]
     duration: timedelta | None = None
     tags: list[str] = Field(description="List of tags.")
+    author: str | None = Field(
+        description="Author of the event, if available. If the event is a movie, this should be the director."
+    )
     category: Literal["cine", "coloquio", "live_music"] | None = None
     price: Decimal | None = Field(
         default=None,

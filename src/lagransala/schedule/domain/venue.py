@@ -1,12 +1,13 @@
 import logging
 import re
 from typing import TYPE_CHECKING
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from pydantic import UUID4, HttpUrl, field_validator
+from pydantic import HttpUrl, field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
-from lagransala.shared.application.build_sqlmodel_type import build_sqlmodel_type
+from lagransala.shared.application import build_sqlmodel_type
+from lagransala.shared.domain import Slug
 
 logger = logging.getLogger(__name__)
 
@@ -15,12 +16,12 @@ if TYPE_CHECKING:
 
 
 class Venue(SQLModel, table=True):
-    id: UUID4 = Field(default_factory=uuid4, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
 
     events: list["Event"] = Relationship(back_populates="venue")
 
     name: str
-    slug: str = Field(unique=True)
+    slug: Slug = Field(unique=True)
     description: str
     address: str
     location_latitude: float

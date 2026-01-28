@@ -38,7 +38,7 @@ def test_event_get_urls_non_empty(session):
     ev1 = Event(
         url=HttpUrl("https://example.com/1"),
         title="Event 1",
-        author="Author A",
+        author="Author1",
         description="Desc",
         duration=timedelta(hours=1),
         venue_id=uuid4(),
@@ -46,7 +46,7 @@ def test_event_get_urls_non_empty(session):
     ev2 = Event(
         url=HttpUrl("https://example.com/2"),
         title="Event 2",
-        author=None,
+        author="Author1",
         description="Desc2",
         duration=None,
         venue_id=uuid4(),
@@ -65,7 +65,7 @@ def test_event_datetime_relationship(session):
     event = Event(
         url=HttpUrl("https://example.com/schedule"),
         title="SchedEvent",
-        author="SchedAuthor",
+        author="Author1",
         description="Scheduled",
         duration=timedelta(minutes=30),
         venue_id=uuid4(),

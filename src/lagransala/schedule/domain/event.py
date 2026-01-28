@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from pydantic import UUID4, HttpUrl
+from pydantic import HttpUrl
 from sqlmodel import Field, Relationship, Session, SQLModel, select
 
 from lagransala.shared.application.build_sqlmodel_type import build_sqlmodel_type
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Event(SQLModel, table=True):
-    id: UUID4 = Field(default_factory=uuid4, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     schedule: list["EventDateTime"] = Relationship(back_populates="event")
     venue_id: UUID = Field(default=None, foreign_key="venue.id")
     venue: "Venue" = Relationship(back_populates="events")
@@ -29,9 +29,9 @@ class Event(SQLModel, table=True):
 
 
 class EventDateTime(SQLModel, table=True):
-    id: UUID4 = Field(default_factory=uuid4, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
 
-    event_id: UUID4 = Field(default=None, foreign_key="event.id")
+    event_id: UUID = Field(default=None, foreign_key="event.id")
     event: Event = Relationship(back_populates="schedule")
 
     datetime: datetime  # TODO: validate aware datetime

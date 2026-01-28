@@ -30,8 +30,7 @@ class InstructorEventExtractor:
         cache_backend: CacheBackend[SourcedEventExtraction] | None = None,
         cache_ttl: int | None = None,
     ):
-        self.system_prompt = dedent(
-            """
+        self.system_prompt = dedent("""
             You are an event extractor.
             You will receive web page content in markdown format and you
             will extract all the events present in it.
@@ -47,8 +46,7 @@ class InstructorEventExtractor:
 
             Only include events that are happening from the start of this month .
             The first day of the month was {first_day}.
-        """
-        )
+        """)
 
         self._client = client
         self._model = model
@@ -79,7 +77,7 @@ class InstructorEventExtractor:
                 events=[],
                 empty_reason=EmptyReason.EMPTY_CONTENT,
                 model=self._model,
-                dt=datetime.now()
+                dt=datetime.now(),
             )
         assert content.content is not None
         async with self._limiter:
@@ -112,5 +110,5 @@ class InstructorEventExtractor:
                 events=result.events,
                 empty_reason=result.empty_reason,
                 model=self._model,
-                dt=datetime.now()
+                dt=datetime.now(),
             )

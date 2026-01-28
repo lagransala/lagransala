@@ -1,6 +1,6 @@
-from datetime import datetime
 import asyncio
 import logging
+from datetime import datetime
 from typing import Generator, Iterable
 
 from lagransala.extractor.domain import (

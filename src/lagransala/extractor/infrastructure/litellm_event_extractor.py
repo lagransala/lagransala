@@ -29,8 +29,7 @@ class LitellmEventExtractor:
 
         litellm.enable_json_schema_validation = True
         self._litellm = litellm
-        self.system_prompt = dedent(
-            """
+        self.system_prompt = dedent("""
             You are an event extractor.
             You will receive web page content in markdown format and you
             will extract all the events present in it.
@@ -46,8 +45,7 @@ class LitellmEventExtractor:
 
             Only include events that are happening from the start of this month .
             The first day of the month was {first_day}.
-        """
-        )
+        """)
 
         self._model = model
         self._limiter = limiter or AsyncLimiter(10, 60)
@@ -99,10 +97,12 @@ class LitellmEventExtractor:
                     {"role": "user", "content": content.content},
                 ],
             )
+            # litellm.completion with response_format returns EventExtraction instance
+            event_extraction: EventExtraction = response  # type: ignore[assignment]
             return SourcedEventExtraction(
                 source_url=content.url,
-                events=response.events,
-                empty_reason=response.empty_reason,
+                events=event_extraction.events,
+                empty_reason=event_extraction.empty_reason,
                 model=self._model,
                 dt=datetime.now(),
             )

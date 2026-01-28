@@ -159,7 +159,7 @@ def initialize_instructor_extractor():
 
     litellm.success_callback = ["langfuse"]
     litellm.failure_callback = ["langfuse"]
-    litellm._turn_on_debug()
+    litellm._turn_on_debug()  # type: ignore[attr-defined]
 
     instructor_client = instructor.from_litellm(
         litellm.acompletion, mode=instructor.Mode.JSON

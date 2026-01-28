@@ -35,8 +35,7 @@ class GeminiEventExtractor:
         cache_backend: CacheBackend[SourcedEventExtraction] | None = None,
         cache_ttl: int | None = None,
     ):
-        self.system_prompt = dedent(
-            """
+        self.system_prompt = dedent("""
             You are an event extractor.
             You will receive web page content in markdown format and you
             will extract all the events present in it.
@@ -56,8 +55,7 @@ class GeminiEventExtractor:
             Here is the markdown content from the web page:
 
             {content}
-        """
-        )
+        """)
 
         self._client = client or genai.Client()
         self._model = model
@@ -95,14 +93,14 @@ class GeminiEventExtractor:
             response = await self._client.aio.models.generate_content(
                 model=self._model,
                 contents=self.system_prompt.format(
-                            first_day=datetime.strftime(
-                                datetime.now().replace(day=1), "%Y-%m-%d"
-                            ),
-                        ),
+                    first_day=datetime.strftime(
+                        datetime.now().replace(day=1), "%Y-%m-%d"
+                    ),
+                ),
                 config={
                     "response_mime_type": "application/json",
-                    "response_schema":EventExtraction.model_json_schema()
-                    }
+                    "response_schema": EventExtraction.model_json_schema(),
+                },
             )
         extraction: EventExtraction | None = None
         try:
@@ -131,7 +129,7 @@ class GeminiEventExtractor:
                     source_url=content.url,
                     events=[],
                     empty_reason=EmptyReason.EXTRACTION_ERROR,
-                    dt=datetime.now()
+                    dt=datetime.now(),
                 )
             else:
                 return SourcedEventExtraction(
@@ -139,5 +137,5 @@ class GeminiEventExtractor:
                     source_url=content.url,
                     events=extraction.events,
                     empty_reason=extraction.empty_reason,
-                    dt=datetime.now()
+                    dt=datetime.now(),
                 )

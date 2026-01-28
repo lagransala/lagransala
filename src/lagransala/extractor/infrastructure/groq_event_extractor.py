@@ -82,6 +82,7 @@ class GroqEventExtractor:
                 source_url=content.url,
                 events=[],
                 empty_reason=EmptyReason.EMPTY_CONTENT,
+                dt=datetime.now(),
             )
         assert content.content is not None
         async with self._limiter:
@@ -109,6 +110,15 @@ class GroqEventExtractor:
                 },
             )
         json_response = response.choices[0].message.content
+        if json_response is None:
+            logger.error("No JSON response from %s", content.url)
+            return SourcedEventExtraction(
+                model=self._model,
+                source_url=content.url,
+                events=[],
+                empty_reason=EmptyReason.EXTRACTION_ERROR,
+                dt=datetime.now(),
+            )
         try:
             event_extraction = EventExtraction.model_validate_json(json_response)
             return SourcedEventExtraction(
@@ -116,6 +126,7 @@ class GroqEventExtractor:
                 source_url=content.url,
                 events=event_extraction.events,
                 empty_reason=event_extraction.empty_reason,
+                dt=datetime.now(),
             )
         except ValidationError as e:
             logger.error("ValidationError parsing events from %s", content.url)
@@ -130,4 +141,5 @@ class GroqEventExtractor:
                 source_url=content.url,
                 events=[],
                 empty_reason=EmptyReason.EXTRACTION_ERROR,
+                dt=datetime.now(),
             )

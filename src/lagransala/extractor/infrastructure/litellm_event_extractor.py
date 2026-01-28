@@ -3,6 +3,7 @@ from textwrap import dedent
 
 from aiolimiter import AsyncLimiter
 from langfuse import observe
+from loguru import logger
 
 from lagransala.extractor.domain.event_extractor import (
     EmptyReason,
@@ -12,7 +13,6 @@ from lagransala.extractor.domain.event_extractor import (
 from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedContent
 from lagransala.shared.application.caching import cached
 from lagransala.shared.domain import CacheBackend
-from lagransala.shared.infrastructure.logging import logger
 
 
 class LitellmEventExtractor:

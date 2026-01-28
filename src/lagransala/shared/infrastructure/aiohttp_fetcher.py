@@ -3,12 +3,12 @@ from datetime import datetime
 from typing import Generator, Iterable
 
 import aiohttp
+from loguru import logger
 from pydantic import HttpUrl
 
 from ..application import cached
 from ..domain import CacheBackend
 from ..domain.fetcher import Response
-from .logging import logger
 
 
 class AiohttpFetcher:

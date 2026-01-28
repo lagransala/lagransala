@@ -1,9 +1,8 @@
 from pathlib import Path
 
+from loguru import logger
 from pydantic import TypeAdapter, ValidationError
 from sqlmodel import Session, select
-
-from lagransala.shared.infrastructure.logging import logger
 
 from ..domain import Venue
 

@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import overload
 
+from loguru import logger
 from pydantic import TypeAdapter, ValidationError
 
 from lagransala.scraper.domain.pagination import Pagination
-from lagransala.shared.infrastructure.logging import logger
 
 
 class JsonPaginationRepo:

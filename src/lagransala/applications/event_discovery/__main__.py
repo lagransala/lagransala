@@ -6,6 +6,7 @@ import instructor
 from aiolimiter import AsyncLimiter
 from groq import AsyncGroq, Groq
 from langfuse import get_client, observe
+from loguru import logger
 from sqlalchemy import Engine
 from sqlmodel import Session, select
 
@@ -26,7 +27,6 @@ from lagransala.shared.infrastructure import (
     FileCacheBackend,
     initialize_sqlmodel,
 )
-from lagransala.shared.infrastructure.logging import logger
 
 from . import (
     extract_events,

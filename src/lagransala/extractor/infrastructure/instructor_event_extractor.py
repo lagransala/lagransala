@@ -4,11 +4,11 @@ from textwrap import dedent
 import instructor
 from aiolimiter import AsyncLimiter
 from langfuse import observe
+from loguru import logger
 from tenacity import AsyncRetrying, stop_after_attempt
 
 from lagransala.shared.application import cached
 from lagransala.shared.domain import CacheBackend
-from lagransala.shared.infrastructure.logging import logger
 
 from ..domain import (
     ContentFormat,

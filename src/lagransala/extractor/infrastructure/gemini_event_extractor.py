@@ -5,6 +5,7 @@ from typing import Any, Callable
 from aiolimiter import AsyncLimiter
 from google import genai
 from langfuse import observe
+from loguru import logger
 from pydantic import ValidationError
 
 from lagransala.extractor.domain.event_extractor import (
@@ -15,7 +16,6 @@ from lagransala.extractor.domain.event_extractor import (
 from lagransala.extractor.domain.sourced_content import ContentFormat, SourcedContent
 from lagransala.shared.application import cached
 from lagransala.shared.domain import CacheBackend
-from lagransala.shared.infrastructure.logging import logger
 
 
 def key_func(

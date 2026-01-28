@@ -1,9 +1,8 @@
 from pathlib import Path
 from typing import overload
 
+from loguru import logger
 from pydantic import TypeAdapter, ValidationError
-
-from lagransala.shared.infrastructure.logging import logger
 
 from ..domain import ContentScraper
 

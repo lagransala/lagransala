@@ -2,6 +2,8 @@ import asyncio
 from datetime import datetime
 from typing import Generator, Iterable
 
+from loguru import logger
+
 from lagransala.extractor.domain import (
     ContentFormat,
     EmptyReason,
@@ -9,7 +11,6 @@ from lagransala.extractor.domain import (
     SourcedContent,
     SourcedEventExtraction,
 )
-from lagransala.shared.infrastructure.logging import logger
 
 
 def extract_event(

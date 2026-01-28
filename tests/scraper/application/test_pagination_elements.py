@@ -1,10 +1,8 @@
-import re
+from datetime import datetime
 from unittest.mock import MagicMock
-from uuid import uuid4
 
 import pytest
 from pydantic import HttpUrl
-from yarl import URL
 
 from lagransala.scraper.application import pagination_elements
 from lagransala.scraper.domain import Pagination, PaginationType
@@ -16,9 +14,11 @@ from lagransala.shared.domain.fetcher import Response
 async def test_pagination_elements() -> None:
     fetcher = MagicMock(spec=Fetcher)
     response = Response(
+        url=HttpUrl("http://example.com"),
         status=200,
         content='<html><a href="/page/1">1</a><a href="/page/2">2</a></html>',
         content_type="text/html",
+        dt=datetime.now(),
     )
     fetcher.fetch_urls.return_value = [response]
 
@@ -34,6 +34,6 @@ async def test_pagination_elements() -> None:
     urls = await pagination_elements(fetcher, pagination)
 
     assert urls == {
-        str(URL("http://example.com/page/1")),
-        str(URL("http://example.com/page/2")),
+        HttpUrl("http://example.com/page/1"),
+        HttpUrl("http://example.com/page/2"),
     }

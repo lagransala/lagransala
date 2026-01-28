@@ -41,7 +41,7 @@ class Crawler:
 
     async def _fetch_and_extract(self, url: HttpUrl) -> None:
         async with self._semaphore:
-            response = await self.fetcher.fetch(str(url))
+            response = await self.fetcher.fetch(url)
 
         if response.status != 200:
             return

@@ -4,11 +4,19 @@ from textwrap import dedent
 
 import instructor
 from aiolimiter import AsyncLimiter
+from langfuse import observe
 from tenacity import AsyncRetrying, stop_after_attempt
 
-from lagransala.extractor.domain import EventExtractionResult
-from lagransala.shared.application.caching import cached
-from lagransala.shared.domain.caching import CacheBackend
+from lagransala.shared.application import cached
+from lagransala.shared.domain import CacheBackend
+
+from ..domain import (
+    ContentFormat,
+    EmptyReason,
+    EventExtraction,
+    SourcedContent,
+    SourcedEventExtraction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +27,7 @@ class InstructorEventExtractor:
         client: instructor.AsyncInstructor,
         model: str,
         limiter: AsyncLimiter | None = None,
-        cache_backend: CacheBackend[EventExtractionResult] | None = None,
+        cache_backend: CacheBackend[SourcedEventExtraction] | None = None,
         cache_ttl: int | None = None,
     ):
         self.system_prompt = dedent(
@@ -48,19 +56,36 @@ class InstructorEventExtractor:
         self._cache_backend = cache_backend
         self._cache_ttl = cache_ttl
 
+    async def extract(
+        self, content: SourcedContent, context: dict[str, str] | None = None
+    ) -> SourcedEventExtraction:
         if self._cache_backend is not None:
-            self.extract = cached(
+            return await cached(
                 backend=self._cache_backend,
-                ttl=cache_ttl,
-            )(self._extract)
+                ttl=self._cache_ttl,
+            )(
+                self._extract
+            )(content, context)
         else:
-            self.extract = self._extract
+            return await self._extract(content, context)
 
+    @observe()
     async def _extract(
-        self, content: str, context: dict[str, str] | None = None
-    ) -> EventExtractionResult:
+        self, content: SourcedContent, context: dict[str, str] | None = None
+    ) -> SourcedEventExtraction:
+        if content.fmt == ContentFormat.EMPTY:
+            return SourcedEventExtraction(
+                source_url=content.url,
+                events=[],
+                empty_reason=EmptyReason.EMPTY_CONTENT,
+                model=self._model,
+                dt=datetime.now()
+            )
+        assert content.content is not None
         async with self._limiter:
-            logger.debug("Extracting events from content with length %d", len(content))
+            logger.debug(
+                "Extracting events from content with length %d", len(content.content)
+            )
             result = await self._client.chat.completions.create(
                 model=self._model,
                 max_tokens=2**14,
@@ -71,10 +96,10 @@ class InstructorEventExtractor:
                     },
                     {
                         "role": "user",
-                        "content": content,
+                        "content": content.content,
                     },
                 ],
-                response_model=EventExtractionResult,
+                response_model=EventExtraction,
                 context={
                     "first_day": datetime.strftime(
                         datetime.now().replace(day=1), "%Y-%m-%d"
@@ -82,4 +107,10 @@ class InstructorEventExtractor:
                 },
                 max_retries=AsyncRetrying(stop=stop_after_attempt(0), reraise=True),
             )
-            return result
+            return SourcedEventExtraction(
+                source_url=content.url,
+                events=result.events,
+                empty_reason=result.empty_reason,
+                model=self._model,
+                dt=datetime.now()
+            )

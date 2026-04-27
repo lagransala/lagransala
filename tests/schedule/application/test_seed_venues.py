@@ -26,8 +26,7 @@ def test_seed_venues_not_empty(session: Session, venue_fixture: Venue):
 
 def test_seed_venues_invalid_json(session: Session, tmp_path):
     invalid_json = tmp_path / "invalid.json"
-    invalid_json.write_text(
-        """
+    invalid_json.write_text("""
     [{
         "name": "Invalid Venue",
         "slug": "invalid-venue",
@@ -37,8 +36,7 @@ def test_seed_venues_invalid_json(session: Session, tmp_path):
         "location_longitude": 0,
         "website": "not-a-url"
     }]
-    """
-    )
+    """)
 
     with pytest.raises(ValueError, match="Invalid JSON"):
         seed_venues(session, invalid_json)

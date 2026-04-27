@@ -40,7 +40,7 @@ async def test_instructor_event_extractor_extract(mock_client):
         events=[],
         empty_reason=EmptyReason.NO_EVENTS_FOUND,
         model="test-model",
-        dt=datetime.now()
+        dt=datetime.now(),
     )
     mock_client.chat.completions.create.return_value = expected_result
 
@@ -77,7 +77,7 @@ async def test_instructor_event_extractor_with_cache_extract(mock_client):
         events=[],
         empty_reason=EmptyReason.NO_EVENTS_FOUND,
         model="test-model",
-        dt=datetime.now()
+        dt=datetime.now(),
     )
     mock_client.chat.completions.create.return_value = expected_result
 

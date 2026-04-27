@@ -17,7 +17,13 @@ class MockFetcher(Fetcher):
     async def fetch(self, url: HttpUrl) -> Response:
         return self._responses.get(
             str(url),
-            Response(url=url, status=404, content="", content_type="text/html", dt=datetime.now())
+            Response(
+                url=url,
+                status=404,
+                content="",
+                content_type="text/html",
+                dt=datetime.now(),
+            ),
         )
 
     async def fetch_urls(self, urls: Iterable[HttpUrl]) -> Iterable[Response]:

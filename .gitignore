@@ -181,3 +181,6 @@ result
 *.db
 .direnv
 site/
+
+# local Claude Code settings
+.claude/settings.local.json

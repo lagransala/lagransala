@@ -4,7 +4,7 @@ from .groq_chat_completion import groq_chat_completion
 from .initialize_sqlmodel import initialize_sqlmodel
 from .memory_cache_backend import MemoryCacheBackend
 
-__all___ = [
+__all__ = [
     "AiohttpFetcher",
     "FileCacheBackend",
     "MemoryCacheBackend",

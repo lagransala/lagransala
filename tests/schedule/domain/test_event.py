@@ -5,7 +5,7 @@ import pytest
 from pydantic import HttpUrl
 from sqlmodel import Session, SQLModel, create_engine
 
-from lagransala.schedule.domain import Event, EventDateTime, Venue
+from lagransala.schedule.domain import Event, EventDateTime
 
 
 @pytest.fixture(name="engine")

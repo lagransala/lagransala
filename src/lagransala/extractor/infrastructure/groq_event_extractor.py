@@ -1,9 +1,9 @@
 from datetime import datetime
 from textwrap import dedent
-from typing import Any, Callable
+from typing import Callable
 
 from aiolimiter import AsyncLimiter
-from groq import AsyncGroq, Groq
+from groq import AsyncGroq
 from langfuse import observe
 from loguru import logger
 from pydantic import ValidationError

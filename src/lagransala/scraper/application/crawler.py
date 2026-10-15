@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import Callable
 from urllib.parse import urljoin, urlparse
 
-from loguru import logger
 from pydantic import HttpUrl, ValidationError
 
 from lagransala.scraper.domain.crawler import CrawlResult

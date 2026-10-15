@@ -32,7 +32,7 @@ def extract_urls(
     urls = set()
 
     for tag in soup.find_all(["a", "link", "script", "img", "iframe", "source"]):
-        attr = tag.get("href") or tag.get("src")  # type: ignore
+        attr = tag.get("href") or tag.get("src")
         if attr:
             attr = html.unescape(attr)  # type: ignore
             if urlparse(attr).scheme in {"http", "https", ""} and is_html_url(attr):

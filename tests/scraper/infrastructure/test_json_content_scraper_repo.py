@@ -2,7 +2,7 @@ import json
 from uuid import uuid4
 
 import pytest
-from pydantic import UUID4, HttpUrl
+from pydantic import UUID4
 
 from lagransala.scraper.domain import ContentScraper
 from lagransala.scraper.infrastructure import JsonContentScraperRepo

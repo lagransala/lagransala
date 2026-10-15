@@ -1,6 +1,5 @@
-from groq import AsyncGroq, Groq
+from groq import AsyncGroq
 from groq.types.chat import ChatCompletion
-from groq.types.chat.chat_completion import Choice
 from langfuse import get_client, observe
 from loguru import logger
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 from textwrap import dedent
-from typing import Any, Callable
+from typing import Callable
 
 from aiolimiter import AsyncLimiter
 from google import genai

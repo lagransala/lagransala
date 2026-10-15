@@ -1,7 +1,6 @@
 import calendar
-import os
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 from urllib.parse import urlparse
@@ -73,7 +72,8 @@ def url_domain(url: str) -> str:
     return urlparse(str(url)).netloc
 
 
-templates.env.globals["format_date_spanish"] = format_date_spanish
+# jinja2 types `globals` as a dict of its own default globals only
+templates.env.globals["format_date_spanish"] = format_date_spanish  # ty: ignore[invalid-assignment]
 templates.env.filters["url_domain"] = url_domain
 
 

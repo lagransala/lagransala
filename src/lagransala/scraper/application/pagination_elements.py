@@ -1,5 +1,3 @@
-from typing import Pattern
-
 from loguru import logger
 from pydantic import HttpUrl
 

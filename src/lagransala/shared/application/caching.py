@@ -13,6 +13,10 @@ P = ParamSpec("P")
 R = TypeVar("R", bound=BaseModel)
 
 
+def _func_name(func: Callable[..., Any]) -> str:
+    return f"{func.__module__}.{getattr(func, '__qualname__', repr(func))}"
+
+
 def _get_filtered_args(
     func: Callable[..., Any],
     args: tuple[Any, ...],
@@ -41,7 +45,7 @@ def generate_key(
     key_params: list[str] | None = None,
 ) -> str:
     """Generate a cache key from a function and its arguments."""
-    func_name = f"{func.__module__}.{func.__qualname__}"
+    func_name = _func_name(func)
 
     relevant_args = _get_filtered_args(func, args, kwargs, key_params)
 
@@ -88,7 +92,7 @@ def cached(
 
             cached_value = await backend.get(key)
 
-            func_name = f"{func.__module__}.{func.__qualname__}"
+            func_name = _func_name(func)
             params_str = ", ".join(
                 f"{k}={(v[:37] + '...' if isinstance(v, str) and len(v) > 40 else v)!r}"
                 for k, v in _get_filtered_args(func, args, kwargs, key_params).items()

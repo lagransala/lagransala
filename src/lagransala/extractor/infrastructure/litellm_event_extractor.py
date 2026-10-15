@@ -1,5 +1,6 @@
 from datetime import datetime
 from textwrap import dedent
+from typing import cast
 
 from aiolimiter import AsyncLimiter
 from langfuse import observe
@@ -94,7 +95,7 @@ class LitellmEventExtractor:
                 ],
             )
             # litellm.completion with response_format returns EventExtraction instance
-            event_extraction: EventExtraction = response  # type: ignore[assignment]
+            event_extraction = cast(EventExtraction, response)
             return SourcedEventExtraction(
                 source_url=content.url,
                 events=event_extraction.events,

@@ -1,5 +1,3 @@
-import pytest
-
 from lagransala.shared.application import extract_urls
 from lagransala.shared.application.urls import absolutize_url, is_html_url
 

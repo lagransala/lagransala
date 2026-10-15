@@ -4,7 +4,6 @@ from datetime import datetime
 import aiohttp
 import instructor
 from aiolimiter import AsyncLimiter
-from groq import AsyncGroq, Groq
 from langfuse import get_client, observe, propagate_attributes
 from loguru import logger
 from sqlalchemy import Engine

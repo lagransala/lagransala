@@ -179,6 +179,5 @@ result
 
 # database files
 *.db
-.gitnexus
 .direnv
 site/

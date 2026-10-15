@@ -1,3 +1,37 @@
+## v0.5.2 (2026-10-15)
+
+### Fix
+
+- **extractor**: stop swallowing exceptions in GeminiEventExtractor
+- resolve ruff and ty findings
+- **event_discovery**: adapt to langfuse 5 and instructor 1.16 APIs
+- **web**: use request-first TemplateResponse signature
+- **schedule**: store EventDateTime as NaiveDatetime
+
+### Refactor
+
+- apply the extended ruff rules to src
+
+### Build
+
+- **commitizen**: include build, ci and docs in the changelog
+- **docs**: add ProperDocs with the Material theme
+- **tooling**: extend ruff rules and make ty warnings fail
+- **tooling**: replace black, isort, flake8 and pyright with ruff and ty
+- **nix**: replace uv2nix with a uv-only dev shell
+
+### CI
+
+- **docs**: build the documentation on pull requests
+- **docs**: publish the documentation to GitHub Pages
+
+### Docs
+
+- **readme**: add a short description and link to the documentation
+- document the architecture, domain models, pipeline and web app
+- **specs**: format the Python code block with ruff
+- **specs**: add evals MLflow + DSPy design spec
+
 ## v0.5.1 (2026-01-28)
 
 ### Fix

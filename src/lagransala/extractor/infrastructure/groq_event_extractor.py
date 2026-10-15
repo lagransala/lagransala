@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from datetime import datetime
 from textwrap import dedent
-from typing import Callable
 
 from aiolimiter import AsyncLimiter
 from groq import AsyncGroq

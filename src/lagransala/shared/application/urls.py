@@ -1,7 +1,7 @@
 import html
 import re
 from datetime import datetime
-from typing import Pattern
+from re import Pattern
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
@@ -17,9 +17,8 @@ def is_html_url(url: str) -> bool:
     path = urlparse(url).path.lower()
     if any(path.endswith(ext) for ext in HTML_EXTENSIONS):
         return True
-    if "." not in path.split("/")[-1]:  # No extension, probably a route
-        return True
-    return False
+    # No extension, probably a route
+    return "." not in path.split("/")[-1]
 
 
 def extract_urls(

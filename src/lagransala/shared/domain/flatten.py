@@ -1,7 +1,5 @@
-from typing import Generator, Iterable, TypeVar
-
-T = TypeVar("T")
+from collections.abc import Generator, Iterable
 
 
-def flatten(nested: Iterable[Iterable[T]]) -> Generator[T]:
+def flatten[T](nested: Iterable[Iterable[T]]) -> Generator[T]:
     return (item for sublist in nested for item in sublist)

@@ -15,7 +15,7 @@ def seed_venues(session: Session, seed_path: Path | str):
     logger.info(f"Seeding venues from {seed_path}")
 
     adapter = TypeAdapter(list[Venue])
-    with open(seed_path, "r") as file:
+    with Path(seed_path).open() as file:
         try:
             venues = adapter.validate_json(file.read())
             for venue in venues:

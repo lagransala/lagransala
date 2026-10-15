@@ -1,6 +1,6 @@
 import asyncio
+from collections.abc import Generator, Iterable
 from datetime import datetime
-from typing import Generator, Iterable
 
 from loguru import logger
 

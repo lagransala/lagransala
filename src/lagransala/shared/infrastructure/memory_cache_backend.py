@@ -1,12 +1,10 @@
 import time
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from pydantic import BaseModel
 
-Data = TypeVar("Data", bound=BaseModel)
 
-
-class MemoryCacheBackend(Generic[Data]):
+class MemoryCacheBackend[Data: BaseModel]:
     def __init__(self) -> None:
         self._cache: dict[str, dict[str, Any]] = {}
 

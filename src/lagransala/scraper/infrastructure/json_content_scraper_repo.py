@@ -27,8 +27,7 @@ class JsonContentScraperRepo:
         else:
             content_scrapers.append(content_scraper)
         data = self._adapter.dump_json(content_scrapers, indent=2)
-        with open(self._file, "wb") as file:
-            file.write(data)
+        Path(self._file).write_bytes(data)
 
     @overload
     def get(self, venue_slug: str) -> ContentScraper | None: ...
@@ -40,7 +39,7 @@ class JsonContentScraperRepo:
         self, venue_slug: str | None = None
     ) -> list[ContentScraper] | ContentScraper | None:
         """Get a content_scraper by its ID or all content_scrapers if ID is None."""
-        with open(self._file) as file:
+        with Path(self._file).open() as file:
             try:
                 content_scrapers = self._adapter.validate_json(file.read())
             except ValidationError as e:

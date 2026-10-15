@@ -9,7 +9,7 @@ __all__ = [
     "CacheBackend",
     "Fetcher",
     "FetcherResponse",
+    "Slug",
     "coroutine_with_data",
     "flatten",
-    "Slug",
 ]

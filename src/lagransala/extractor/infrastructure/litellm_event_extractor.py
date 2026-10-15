@@ -95,7 +95,7 @@ class LitellmEventExtractor:
                 ],
             )
             # litellm.completion with response_format returns EventExtraction instance
-            event_extraction = cast(EventExtraction, response)
+            event_extraction = cast("EventExtraction", response)
             return SourcedEventExtraction(
                 source_url=content.url,
                 events=event_extraction.events,

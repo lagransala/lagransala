@@ -1,11 +1,8 @@
-from typing import Any, Callable, Coroutine, TypeVar
-
-T = TypeVar("T")
-D = TypeVar("D")
-R = TypeVar("R")
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 
-async def coroutine_with_data(
+async def coroutine_with_data[T, D, R](
     coroutine: Coroutine[Any, Any, T],
     data: D,
     combiner: Callable[[T, D], R],

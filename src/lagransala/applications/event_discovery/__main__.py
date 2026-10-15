@@ -92,7 +92,7 @@ async def _get_venue_events(
     sourced_contents = scrape_content(scraper, responses)
     distant_future = datetime.now().replace(year=5000)
     sourced_contents = sorted(
-        list(sourced_contents),
+        sourced_contents,
         key=lambda x: (
             min(extract_dates(x.content), default=distant_future)
             if x.content
@@ -117,7 +117,9 @@ async def _get_venue_events(
     #         for event_data in extraction.events:
     #             yield Event(
     #                 venue_id=venue.id,
-    #                 schedule=[EventDateTime(datetime=dt) for dt in event_data.schedule],
+    #                 schedule=[
+    #                     EventDateTime(datetime=dt) for dt in event_data.schedule
+    #                 ],
     #                 author=event_data.author,
     #                 url=extraction.source_url,
     #                 title=event_data.title,
@@ -142,9 +144,8 @@ async def _get_venue_events(
             f"     - extracted {len(result.events)} events from {result.source_url}",
         )
         for event_data in result.events:
-            logger.debug(
-                f"       - {event_data.title} ({[dt.strftime('%Y-%m-%d %H:%M:%S') for dt in event_data.schedule]})"
-            )
+            schedule = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in event_data.schedule]
+            logger.debug(f"       - {event_data.title} ({schedule})")
             events.append(
                 Event(
                     venue_id=venue.id,
@@ -197,7 +198,7 @@ def initialize_groq_extractor():
 async def main():
     # db_engine = initialize_sqlmodel("sqlite:///:memory:")
     db_engine = initialize_sqlmodel("sqlite:///lagransala.db")
-    venues = sorted(list(await load_venues(db_engine)), key=lambda v: v.name)
+    venues = sorted(await load_venues(db_engine), key=lambda v: v.name)
     json_pagination_repo = JsonPaginationRepo("./seeds/paginations.json")
     content_scraper_repo = JsonContentScraperRepo("./seeds/content_scrapers.json")
     logger.info(f"Loaded {len(venues)} venues")

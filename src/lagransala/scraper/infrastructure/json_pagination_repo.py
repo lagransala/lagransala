@@ -27,8 +27,7 @@ class JsonPaginationRepo:
         else:
             paginations.append(pagination)
         data = self._adapter.dump_json(paginations, indent=2)
-        with open(self._file, "wb") as file:
-            file.write(data)
+        Path(self._file).write_bytes(data)
 
     @overload
     def get(self, venue_slug: str) -> Pagination | None: ...
@@ -40,7 +39,7 @@ class JsonPaginationRepo:
         self, venue_slug: str | None = None
     ) -> list[Pagination] | Pagination | None:
         """Get a pagination by its ID or all paginations if ID is None."""
-        with open(self._file) as file:
+        with Path(self._file).open() as file:
             try:
                 paginations = self._adapter.validate_json(file.read())
             except ValidationError as e:

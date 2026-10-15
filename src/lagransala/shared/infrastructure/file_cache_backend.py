@@ -2,17 +2,14 @@ import base64
 import json
 import time
 from pathlib import Path
-from typing import Generic, Type, TypeVar
 
 import aiofiles
 import aiofiles.os
 from pydantic import BaseModel
 
-Data = TypeVar("Data", bound=BaseModel)
 
-
-class FileCacheBackend(Generic[Data]):
-    def __init__(self, data_type: Type[Data], cache_dir: str):
+class FileCacheBackend[Data: BaseModel]:
+    def __init__(self, data_type: type[Data], cache_dir: str):
         self.data_type = data_type
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -26,7 +23,7 @@ class FileCacheBackend(Generic[Data]):
         if not await aiofiles.os.path.exists(path):
             return None
         try:
-            async with aiofiles.open(path, "r", encoding="utf-8") as f:
+            async with aiofiles.open(path, encoding="utf-8") as f:
                 content = await f.read()
                 payload = json.loads(content)
 

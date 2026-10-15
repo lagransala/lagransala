@@ -25,7 +25,7 @@ class Event(SQLModel, table=True):
 
     @classmethod
     def get_urls(cls, session: Session) -> set[HttpUrl]:
-        return set(map(lambda event: event.url, session.exec(select(Event)).all()))
+        return {event.url for event in session.exec(select(Event)).all()}
 
 
 class EventDateTime(SQLModel, table=True):

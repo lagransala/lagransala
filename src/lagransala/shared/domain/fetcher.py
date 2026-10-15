@@ -1,6 +1,7 @@
 import asyncio
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Iterable, Protocol
+from typing import Protocol
 
 from pydantic import BaseModel, HttpUrl
 

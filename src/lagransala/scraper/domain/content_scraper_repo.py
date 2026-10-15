@@ -17,5 +17,5 @@ class ContentScraperRepo(Protocol):
     def get(
         self, venue_slug: str | None = None
     ) -> list[ContentScraper] | ContentScraper | None:
-        """Get a pagination by its venue_slug or all paginations if venue_slug is None."""
+        """Get a content scraper by its venue_slug, or all if venue_slug is None."""
         ...

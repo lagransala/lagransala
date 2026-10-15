@@ -1,16 +1,15 @@
 import json
-from typing import Any, Callable, Type, TypeVar
+from collections.abc import Callable
+from typing import Any
 
 from sqlmodel import AutoString
-
-T = TypeVar("T")
 
 
 def _type_name(internal_type: Callable[..., Any]) -> str:
     return getattr(internal_type, "__name__", repr(internal_type))
 
 
-def build_sqlmodel_type(internal_type: Callable[[Any], T]) -> Type[AutoString]:
+def build_sqlmodel_type[T](internal_type: Callable[[Any], T]) -> type[AutoString]:
     class CustomType(AutoString):
         def process_bind_param(self, value, dialect) -> str | None:
             if value is None:
@@ -36,7 +35,7 @@ def build_sqlmodel_type(internal_type: Callable[[Any], T]) -> Type[AutoString]:
     return CustomType
 
 
-def build_sqlmodel_list_type(internal_type: Callable[[Any], T]) -> Type[AutoString]:
+def build_sqlmodel_list_type[T](internal_type: Callable[[Any], T]) -> type[AutoString]:
     class CustomType(AutoString):
         def process_bind_param(self, value, dialect) -> str | None:
             if value is None:

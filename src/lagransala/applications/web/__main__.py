@@ -1,8 +1,8 @@
 import calendar
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
 from urllib.parse import urlparse
 
 from fastapi import Depends, FastAPI, HTTPException, Request

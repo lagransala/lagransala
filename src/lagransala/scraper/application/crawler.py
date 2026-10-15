@@ -1,7 +1,7 @@
 import asyncio
 import re
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable
 from urllib.parse import urljoin, urlparse
 
 from pydantic import HttpUrl, ValidationError

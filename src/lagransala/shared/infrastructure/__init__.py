@@ -8,6 +8,6 @@ __all__ = [
     "AiohttpFetcher",
     "FileCacheBackend",
     "MemoryCacheBackend",
-    "initialize_sqlmodel",
     "groq_chat_completion",
+    "initialize_sqlmodel",
 ]

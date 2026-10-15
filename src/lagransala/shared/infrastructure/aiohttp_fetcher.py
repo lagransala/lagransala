@@ -1,6 +1,6 @@
 import asyncio
+from collections.abc import Generator, Iterable
 from datetime import datetime
-from typing import Generator, Iterable
 
 import aiohttp
 from loguru import logger
@@ -35,15 +35,14 @@ class AiohttpFetcher:
 
     async def _fetch(self, url: HttpUrl) -> Response:
         logger.debug(f"fetching {url}")
-        async with self._semaphore:
-            async with self._client.get(str(url)) as response:
-                return Response(
-                    url=url,
-                    status=response.status,
-                    content=await response.text(),
-                    content_type=response.content_type,
-                    dt=datetime.now(),
-                )
+        async with self._semaphore, self._client.get(str(url)) as response:
+            return Response(
+                url=url,
+                status=response.status,
+                content=await response.text(),
+                content_type=response.content_type,
+                dt=datetime.now(),
+            )
 
     async def fetch_urls(self, urls: Iterable[HttpUrl]) -> list[Response]:
         return await asyncio.gather(*[self.fetch(url) for url in urls])

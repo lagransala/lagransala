@@ -9,7 +9,8 @@ from lagransala.shared.infrastructure.file_cache_backend import FileCacheBackend
 langfuse = get_client()
 
 
-# Function to handle Groq chat completion calls, wrapped with @observe to log the LLM interaction
+# Handle Groq chat completion calls, wrapped with @observe to log the LLM
+# interaction
 @cached(
     FileCacheBackend(ChatCompletion, ".cache/groq_chat_completion"),
     key_params=["messages", "model"],

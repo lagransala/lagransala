@@ -76,7 +76,7 @@ class Pagination(BaseModel):
                 assert self.limit is not None
                 today = datetime.now().replace(minute=0, hour=0, second=0)
                 result: list[HttpUrl] = []
-                for i in range(0, self.limit):
+                for i in range(self.limit):
                     date = today + timedelta(days=i)
                     url = HttpUrl(self.url.format(date=date.strftime(self.date_format)))
                     result.append(url)
@@ -87,7 +87,7 @@ class Pagination(BaseModel):
                 month_start = datetime.now().replace(day=1, minute=0, hour=0, second=0)
                 current_month = month_start.month
                 result: list[HttpUrl] = []
-                for i in range(0, self.limit):
+                for i in range(self.limit):
                     month = month_start.replace(month=current_month + i)
                     url = HttpUrl(
                         self.url.format(month=month.strftime(self.date_format))

@@ -2,15 +2,13 @@ import functools
 import hashlib
 import inspect
 import json
-from typing import Any, Callable, Concatenate, Coroutine, ParamSpec, TypeVar
+from collections.abc import Callable, Coroutine
+from typing import Any, Concatenate
 
 from loguru import logger
 from pydantic import BaseModel
 
 from ..domain import CacheBackend
-
-P = ParamSpec("P")
-R = TypeVar("R", bound=BaseModel)
 
 
 def _func_name(func: Callable[..., Any]) -> str:
@@ -67,7 +65,7 @@ def generate_key(
     return hashlib.sha256(serialized_data).hexdigest()
 
 
-def cached(
+def cached[**P, R: BaseModel](
     backend: CacheBackend[R],
     ttl: float | None = None,
     key_func: Callable[Concatenate[Callable[P, Any], P], str] | None = None,

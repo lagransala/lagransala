@@ -178,3 +178,10 @@ cython_debug/
 result
 Dockerfile
 run
+
+# local state and tooling
+.git
+.direnv
+.claude
+.import_linter_cache
+*.db

@@ -154,9 +154,9 @@ async def read_schedule(request: Request, session: Session = Depends(get_session
     event_data = generate_event_list_data(events)
 
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "event_data": event_data,
             "now": now,
         },
@@ -179,9 +179,9 @@ async def read_date(
     event_data = generate_event_list_data(events)
 
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "event_data": event_data,
             "now": datetime(year, month, 1),
         },

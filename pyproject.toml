@@ -34,16 +34,14 @@ lagransala= "lagransala.__main__:app"
 
 [dependency-groups]
 dev = [
-    "black",
     "commitizen",
-    "flake8",
-    "isort",
     "pre-commit",
-    "pyright",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "import-linter"
+    "import-linter",
+    "ruff>=0.17.1",
+    "ty>=0.0.88",
 ]
 
 [tool.pytest.ini_options]
@@ -56,8 +54,20 @@ tag_format =  "v${version}"
 version_scheme = "semver"
 update_changelog_on_bump = true
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+line-length = 88
+extend-exclude = ["lagransala_old.db"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes and import sorting (replaces flake8 and isort)
+select = ["E", "W", "F", "I"]
+ignore = [
+    "E501",  # line length is handled by the formatter
+    "E731",  # lambda assignment
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lagransala"]
 
 [tool.coverage.report]
 exclude_also = [

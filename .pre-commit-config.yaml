@@ -14,29 +14,19 @@ repos:
         stages: [commit-msg]
   - repo: local
     hooks:
-      - id: black
-        name: black
-        entry: black
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check
         language: system
         types: [python]
-  - repo: local
-    hooks:
-      - id: flake8
-        name: flake8
-        entry: flake8
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format
         language: system
         types: [python]
-  - repo: local
-    hooks:
-      - id: isort
-        name: isort
-        entry: isort
+      - id: ty
+        name: ty
+        entry: ty check
         language: system
         types: [python]
-  - repo: local
-    hooks:
-      - id: pyright
-        name: pyright
-        entry: pyright
-        language: system
-        types: [python]
+        pass_filenames: false

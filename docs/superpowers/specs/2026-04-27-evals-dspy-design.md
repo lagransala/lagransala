@@ -109,9 +109,11 @@ Nuevo extractor `DSPyEventExtractor` en `src/lagransala/extractor/infrastructure
 class EventExtractionSignature(dspy.Signature):
     """Extract all events from venue webpage content in markdown format.
     Return only events from the current month onwards."""
+
     content: str = dspy.InputField(desc="Venue webpage content in markdown")
     first_day: str = dspy.InputField(desc="First day of current month, YYYY-MM-DD")
     extraction: EventExtraction = dspy.OutputField()
+
 
 class DSPyEventExtractorModule(dspy.Module):
     def __init__(self):

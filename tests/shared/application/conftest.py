@@ -11,7 +11,7 @@ from .helpers import SimpleData
 
 @pytest.fixture
 def dummy_dialect() -> Dialect:
-    return cast(Dialect, None)
+    return cast("Dialect", None)
 
 
 @pytest.fixture

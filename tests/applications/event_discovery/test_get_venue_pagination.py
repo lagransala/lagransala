@@ -29,7 +29,7 @@ def test_get_venue_pagination_not_found(venue) -> None:
     repo = MagicMock(spec=PaginationRepo)
     repo.get.return_value = None
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="not found"):
         get_venue_pagination(repo, venue)
 
     repo.get.assert_called_once_with("test-venue")

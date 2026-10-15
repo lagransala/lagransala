@@ -8,7 +8,7 @@ from lagransala.scraper.domain import Pagination, PaginationType
 from lagransala.scraper.infrastructure import JsonPaginationRepo
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_pagination(id: UUID4 | None = None) -> Pagination:
     """Helper to create a valid simple pagination"""
     if id is None:
@@ -24,7 +24,7 @@ def sample_pagination(id: UUID4 | None = None) -> Pagination:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def repo(tmp_path) -> JsonPaginationRepo:
     file_path = tmp_path / "paginations.json"
     return JsonPaginationRepo(file_path)
@@ -81,10 +81,10 @@ def test_persistence_between_instances(tmp_path, sample_pagination: Pagination):
 def test_get_with_invalid_json_raises_value_error(repo: JsonPaginationRepo):
     # Test with malformed JSON syntax
     repo._file.write_text("[{]")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Error validating json"):
         repo.get()
 
     # Test with valid JSON but data that fails Pydantic validation
     repo._file.write_text('[{"venue_slug": 123}]')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Error validating json"):
         repo.get()

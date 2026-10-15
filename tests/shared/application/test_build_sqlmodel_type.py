@@ -26,7 +26,7 @@ def test_build_sqlmodel_type_none(dummy_dialect):
 
 def test_build_sqlmodel_type_invalid_str_raises(dummy_dialect):
     UrlType = build_sqlmodel_type(HttpUrl)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid value for"):
         UrlType().process_bind_param("not-a-url", dialect=dummy_dialect)
 
 
@@ -44,12 +44,13 @@ def test_build_sqlmodel_list_type_roundtrip(dummy_dialect):
     assert json.loads(bound) == data
     result = IntListType().process_result_value(bound, dialect=dummy_dialect)
     assert result == data
-    assert result and all(isinstance(x, int) for x in result)
+    assert result
+    assert all(isinstance(x, int) for x in result)
 
 
 def test_build_sqlmodel_list_type_invalid_json_raises(dummy_dialect):
     IntListType = build_sqlmodel_list_type(int)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid value for"):
         IntListType().process_bind_param("[1, ", dialect=dummy_dialect)
 
 
@@ -61,11 +62,11 @@ def test_build_sqlmodel_list_type_none(dummy_dialect):
 
 def test_build_sqlmodel_list_type_bind_invalid_json_not_list_raises(dummy_dialect):
     IntListType = build_sqlmodel_list_type(int)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid value for"):
         IntListType().process_bind_param('{"a": 1}', dialect=dummy_dialect)
 
 
 def test_build_sqlmodel_list_type_bind_invalid_item_type_raises(dummy_dialect):
     IntListType = build_sqlmodel_list_type(int)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid value for"):
         IntListType().process_bind_param('[1, "a", 3]', dialect=dummy_dialect)

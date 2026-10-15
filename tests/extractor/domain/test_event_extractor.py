@@ -23,7 +23,7 @@ def test_event_extraction_result_with_events():
 
 
 def test_event_extraction_result_empty_with_reason():
-    """Test that EventExtractionResult can be created with an empty list of events and a reason."""
+    """Test that an EventExtraction can be empty if it has a reason."""
     result = EventExtraction(events=[], empty_reason=EmptyReason.NO_EVENTS_FOUND)
     assert result.events == []
     assert result.empty_reason == EmptyReason.NO_EVENTS_FOUND

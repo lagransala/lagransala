@@ -35,12 +35,12 @@ def test_venue_with_invalid_slug(valid_venue_data, invalid_slug):
 
 
 def test_venue_with_invalid_website_url(valid_venue_data):
-    """Test that creating a Venue with an invalid website URL raises a ValidationError."""
+    """Test that an invalid website URL raises a ValidationError."""
     with pytest.raises(ValidationError):
         Venue.model_validate({**valid_venue_data, "website": "not-a-url"})
 
 
 def test_venue_with_invalid_schedule_url(valid_venue_data):
-    """Test that creating a Venue with an invalid schedule URL raises a ValidationError."""
+    """Test that an invalid schedule URL raises a ValidationError."""
     with pytest.raises(ValidationError):
         Venue.model_validate({**valid_venue_data, "schedule_url": "not-a-url"})

@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 from uuid import uuid4
 
 import pytest
@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from lagransala.scraper.domain import Pagination
 
 
-@pytest.fixture()
+@pytest.fixture
 def valid_pagination_constructor_params() -> list[dict]:
     return [
         {
@@ -47,12 +47,12 @@ def valid_pagination_constructor_params() -> list[dict]:
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def paginations(valid_pagination_constructor_params: list[dict]) -> list[Pagination]:
     return [Pagination(**params) for params in valid_pagination_constructor_params]
 
 
-@pytest.fixture()
+@pytest.fixture
 def invalid_pagination_constructor_params() -> list[dict]:
     return [
         {

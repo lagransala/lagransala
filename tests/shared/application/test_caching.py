@@ -1,4 +1,4 @@
-import time
+import asyncio
 
 import pytest
 
@@ -170,7 +170,7 @@ async def test_cached_with_ttl(memory_cache_backend):
     await timed_function(1)
     assert call_count == 1
 
-    time.sleep(0.3)
+    await asyncio.sleep(0.3)
 
     await timed_function(1)
     assert call_count == 2
@@ -178,7 +178,7 @@ async def test_cached_with_ttl(memory_cache_backend):
 
 def test_cached_key_func_and_key_params_exclusive(memory_cache_backend):
     """Test that providing both key_func and key_params raises an error."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="mutually exclusive"):
 
         @cached(
             backend=memory_cache_backend,

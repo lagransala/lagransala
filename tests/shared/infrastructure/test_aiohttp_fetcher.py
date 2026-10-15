@@ -1,6 +1,6 @@
 from collections import Counter
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Awaitable, Callable
 
 import pytest
 from aiohttp import ClientSession, web

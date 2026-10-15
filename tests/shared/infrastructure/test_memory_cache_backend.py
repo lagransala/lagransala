@@ -1,4 +1,4 @@
-import time
+import asyncio
 
 import pytest
 from pydantic import BaseModel
@@ -58,7 +58,7 @@ async def test_set_with_ttl(cache: MemoryCacheBackend[SimpleData]):
 
     assert await cache.get(key) == data
 
-    time.sleep(0.3)
+    await asyncio.sleep(0.3)
 
     assert await cache.get(key) is None
 
@@ -71,6 +71,8 @@ async def test_set_without_ttl(cache: MemoryCacheBackend[SimpleData]):
 
     await cache.set(key, data, ttl=None)
 
-    time.sleep(1)  # Wait to ensure it would have expired if a short TTL was set
+    await asyncio.sleep(
+        1
+    )  # Wait to ensure it would have expired if a short TTL was set
 
     assert await cache.get(key) == data

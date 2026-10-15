@@ -1,4 +1,4 @@
-import time
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -103,8 +103,7 @@ async def test_get_with_corrupted_file(cache_simple: FileCacheBackend[SimpleData
     # Manually create a corrupted file
     cache_file_path = cache_simple._path_for_key(key)
     cache_file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(cache_file_path, "w", encoding="utf-8") as f:
-        f.write("this is not valid json")
+    cache_file_path.write_text("this is not valid json", encoding="utf-8")
 
     retrieved_data = await cache_simple.get(key)
 
@@ -123,7 +122,7 @@ async def test_set_with_ttl(cache_simple: FileCacheBackend[SimpleData]):
     retrieved_data = await cache_simple.get(key)
     assert retrieved_data == data
 
-    time.sleep(0.3)
+    await asyncio.sleep(0.3)
 
     expired_data = await cache_simple.get(key)
     assert expired_data is None
@@ -137,7 +136,9 @@ async def test_set_without_ttl(cache_simple: FileCacheBackend[SimpleData]):
 
     await cache_simple.set(key, data, ttl=None)
 
-    time.sleep(0.5)  # Wait to ensure it would have expired if a short TTL was set
+    await asyncio.sleep(
+        0.5
+    )  # Wait to ensure it would have expired if a short TTL was set
 
     retrieved_data = await cache_simple.get(key)
     assert retrieved_data == data

@@ -1,13 +1,16 @@
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Iterable
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 
 import pytest
 from pydantic import HttpUrl
 
 from lagransala.scraper.application.crawler import Crawler
-from lagransala.scraper.domain import CrawlResult
 from lagransala.shared.domain.fetcher import Fetcher, Response
+
+if TYPE_CHECKING:
+    from lagransala.scraper.domain import CrawlResult
 
 
 class MockFetcher(Fetcher):
@@ -105,7 +108,10 @@ async def test_crawler_edge_cases():
         str(start_url): Response(
             url=start_url,
             status=200,
-            content='<a href="/ok">OK</a><a href="/404">404</a><a href="/img">IMG</a><a href="/bad">BAD</a><a href="/filtered">FIL</a>',
+            content=(
+                '<a href="/ok">OK</a><a href="/404">404</a><a href="/img">IMG</a>'
+                '<a href="/bad">BAD</a><a href="/filtered">FIL</a>'
+            ),
             content_type="text/html",
             dt=datetime.now(),
         ),

@@ -65,10 +65,29 @@ asyncio_default_fixture_loop_scope = "session"
 addopts = "-ra --cov=src"
 
 [tool.commitizen]
+name = "cz_customize"
 version_provider = "uv"
 tag_format =  "v${version}"
 version_scheme = "semver"
 update_changelog_on_bump = true
+
+[tool.commitizen.customize]
+# Same behaviour as cz_conventional_commits (validation, version bumps), but the
+# changelog also lists `build`, `ci` and `docs` commits. cz_customize leaves
+# schema_pattern empty by default, so it is copied here to keep `cz check` strict.
+schema_pattern = '''(?s)(build|bump|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(\S+\))?!?: ([^\n\r]+)((\n\n.*)|(\s*))?$'''
+commit_parser = '''^((?P<change_type>feat|fix|refactor|perf|build|ci|docs|BREAKING CHANGE)(?:\((?P<scope>[^()\r\n]*)\)|\()?(?P<breaking>!)?|\w+!):\s(?P<message>.*)?'''
+changelog_pattern = '''^((BREAKING[\-\ ]CHANGE|\w+)(\(.+\))?!?):'''
+change_type_order = ["BREAKING CHANGE", "Feat", "Fix", "Refactor", "Perf", "Build", "CI", "Docs"]
+
+[tool.commitizen.customize.change_type_map]
+feat = "Feat"
+fix = "Fix"
+refactor = "Refactor"
+perf = "Perf"
+build = "Build"
+ci = "CI"
+docs = "Docs"
 
 [tool.ruff]
 line-length = 88

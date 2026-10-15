@@ -58,7 +58,9 @@ The pre-commit hooks run ruff (check and format) and ty, and the commit-msg hook
 validates the message.
 
 Releases are cut with Commitizen, which bumps the version from the commit history
-and updates `CHANGELOG.md`:
+and updates `CHANGELOG.md`. `feat` bumps the minor version and `fix`, `refactor` and
+`perf` the patch version. The changelog also lists `build`, `ci` and `docs` commits,
+which do not change the version.
 
 ```bash
 uv run cz bump

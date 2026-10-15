@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from datetime import datetime
 from textwrap import dedent
-from typing import Callable
 
 from aiolimiter import AsyncLimiter
 from google import genai
@@ -118,20 +118,19 @@ class GeminiEventExtractor:
                 logger.error(
                     f"  > at {'.'.join(map(str, error['loc']))}: {error['msg']}"
                 )
-        finally:
-            if extraction is None:
-                return SourcedEventExtraction(
-                    model=self._model,
-                    source_url=content.url,
-                    events=[],
-                    empty_reason=EmptyReason.EXTRACTION_ERROR,
-                    dt=datetime.now(),
-                )
-            else:
-                return SourcedEventExtraction(
-                    model=self._model,
-                    source_url=content.url,
-                    events=extraction.events,
-                    empty_reason=extraction.empty_reason,
-                    dt=datetime.now(),
-                )
+
+        if extraction is None:
+            return SourcedEventExtraction(
+                model=self._model,
+                source_url=content.url,
+                events=[],
+                empty_reason=EmptyReason.EXTRACTION_ERROR,
+                dt=datetime.now(),
+            )
+        return SourcedEventExtraction(
+            model=self._model,
+            source_url=content.url,
+            events=extraction.events,
+            empty_reason=extraction.empty_reason,
+            dt=datetime.now(),
+        )

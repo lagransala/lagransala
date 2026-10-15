@@ -45,7 +45,6 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "aioresponses",
     "import-linter"
 ]
 

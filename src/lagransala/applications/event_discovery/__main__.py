@@ -101,31 +101,6 @@ async def _get_venue_events(
     )
 
     logger.info("   - Extracting event data")
-    # for extraction_result in asyncio.as_completed(
-    #     extract_events(event_extractor, sourced_contents)
-    # ):
-    #     try:
-    #         extraction = await extraction_result
-    #     except Exception:
-    #         logger.error("Error during event extraction", exc_info=True)
-    #     else:
-    #         logger.info(
-    #             "     - Extracted %d events from %s",
-    #             len(extraction.events),
-    #             extraction.source_url,
-    #         )
-    #         for event_data in extraction.events:
-    #             yield Event(
-    #                 venue_id=venue.id,
-    #                 schedule=[
-    #                     EventDateTime(datetime=dt) for dt in event_data.schedule
-    #                 ],
-    #                 author=event_data.author,
-    #                 url=extraction.source_url,
-    #                 title=event_data.title,
-    #                 description=event_data.description,
-    #                 duration=event_data.duration,
-    #             )
 
     extraction_results = await asyncio.gather(
         *extract_events(event_extractor, sourced_contents), return_exceptions=True
@@ -218,13 +193,6 @@ async def main():
             logger.info(f"- Processing venue: {venue.slug}")
             pagination = get_venue_pagination(json_pagination_repo, venue)
             scraper = get_venue_content_scraper(content_scraper_repo, venue)
-
-            #     async for event in get_venue_events(
-            #         venue, pagination, scraper, event_extractor
-            #     ):
-            #         logger.info("Saving event: %s", event.title)
-            #         session.add(event)
-            #         session.commit()
 
             events = await get_venue_events(venue, pagination, scraper, event_extractor)
 

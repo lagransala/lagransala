@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from pydantic import HttpUrl
+from pydantic import HttpUrl, NaiveDatetime
 from sqlmodel import Field, Relationship, Session, SQLModel, select
 
 from lagransala.shared.application.build_sqlmodel_type import build_sqlmodel_type
@@ -34,4 +34,6 @@ class EventDateTime(SQLModel, table=True):
     event_id: UUID = Field(default=None, foreign_key="event.id")
     event: Event = Relationship(back_populates="schedule")
 
-    datetime: datetime  # TODO: validate aware datetime
+    # Venue-local wall-clock time, stored naive (sqlmodel>=0.0.47 rejects naive
+    # datetimes unless the field is annotated as NaiveDatetime).
+    datetime: NaiveDatetime

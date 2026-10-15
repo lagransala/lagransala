@@ -5,7 +5,7 @@ import aiohttp
 import instructor
 from aiolimiter import AsyncLimiter
 from groq import AsyncGroq, Groq
-from langfuse import get_client, observe
+from langfuse import get_client, observe, propagate_attributes
 from loguru import logger
 from sqlalchemy import Engine
 from sqlmodel import Session, select
@@ -52,7 +52,16 @@ async def get_venue_events(
     scraper: ContentScraper,
     event_extractor: EventExtractor,
 ):
-    langfuse.update_current_trace(tags=[venue.slug])
+    with propagate_attributes(tags=[venue.slug]):
+        return await _get_venue_events(venue, pagination, scraper, event_extractor)
+
+
+async def _get_venue_events(
+    venue: Venue,
+    pagination: Pagination,
+    scraper: ContentScraper,
+    event_extractor: EventExtractor,
+):
     async with aiohttp.ClientSession(
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -159,7 +168,7 @@ def initialize_instructor_extractor():
     litellm._turn_on_debug()  # type: ignore[attr-defined]
 
     instructor_client = instructor.from_litellm(
-        litellm.acompletion, mode=instructor.Mode.JSON
+        litellm.acompletion, mode=instructor.Mode.JSON, async_client=True
     )
 
     return InstructorEventExtractor(

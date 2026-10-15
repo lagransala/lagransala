@@ -1,0 +1,106 @@
+site_name: La Gran Sala
+site_description: Discovers and catalogs cultural events from venues using web scraping and LLM extraction.
+site_author: haztecaso
+
+repo_url: https://github.com/lagransala/lagransala
+repo_name: lagransala/lagransala
+
+# Internal design notes live under docs/superpowers and are not part of the site.
+exclude_docs: |
+  superpowers/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - abbr
+  - def_list
+  - admonition
+  - meta
+  - toc:
+      permalink: true
+      baselevel: 2
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: '!!python/name:pymdownx.emoji.to_svg'
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - autolinks
+  - git-revision-date-localized:
+      type: timeago
+      fallback_to_build_date: true
+  - htmlproofer:
+      raise_error: true
+      validate_external_urls: false
+  - minify:
+      minify_html: true
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_submodules: true
+            # most of the code has no docstrings yet; show it anyway
+            show_if_no_docstring: true
+            members_order: source
+            docstring_style: google
+  - search
+  - section-index
+
+nav:
+  - La Gran Sala: index.md
+  - Architecture: architecture.md
+  - Domain models: domain-models.md
+  - Pipeline and web:
+      - Event discovery: pipeline.md
+      - Web application: web.md
+  - Development: development.md
+  - Reference:
+      - reference/index.md
+      - Schedule: reference/schedule.md
+      - Scraper: reference/scraper.md
+      - Extractor: reference/extractor.md
+      - Shared: reference/shared.md
+      - Applications: reference/applications.md

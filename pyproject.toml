@@ -43,6 +43,22 @@ dev = [
     "ruff>=0.17.1",
     "ty>=0.0.88",
 ]
+docs = [
+    "mkdocs-autolinks-plugin>=0.7.1",
+    "mkdocs-git-revision-date-localized-plugin>=1.6.0",
+    "mkdocs-htmlproofer-plugin>=1.6.0",
+    "mkdocs-material>=9.7.7",
+    "mkdocs-minify-plugin>=0.8.0",
+    "mkdocs-section-index>=0.3.12",
+    "mkdocstrings>=1.0.7",
+    "mkdocstrings-python>=2.0.9",
+    "properdocs>=1.6.7",
+]
+
+[tool.uv]
+# The docs plugins still depend on mkdocs. Keep it on the 1.x line, since the
+# announced v2 will not support existing plugins, themes or configuration.
+constraint-dependencies = ["mkdocs<2"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "session"

@@ -1,13 +1,41 @@
-import asyncio
+from collections import Counter
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator, Awaitable, Callable
 
 import pytest
-from aiohttp import ClientSession
-from aioresponses import aioresponses
+from aiohttp import ClientSession, web
+from aiohttp.test_utils import TestServer
 from pydantic import HttpUrl
 
 from lagransala.shared.domain.fetcher import Response
 from lagransala.shared.infrastructure.aiohttp_fetcher import AiohttpFetcher
 from lagransala.shared.infrastructure.memory_cache_backend import MemoryCacheBackend
+
+
+@asynccontextmanager
+async def serve(
+    pages: dict[str, str],
+) -> AsyncGenerator[tuple[ClientSession, dict[str, HttpUrl], Counter[str]]]:
+    """Serve `pages` (path -> body) on a local server.
+
+    Yields a client, the url of every page and a counter of requests per path.
+    """
+    hits: Counter[str] = Counter()
+
+    def handler(body: str) -> Callable[[web.Request], Awaitable[web.Response]]:
+        async def respond(request: web.Request) -> web.Response:
+            hits[request.path] += 1
+            return web.Response(text=body, content_type="text/html")
+
+        return respond
+
+    app = web.Application()
+    for path, body in pages.items():
+        app.router.add_get(path, handler(body))
+
+    async with TestServer(app) as server, ClientSession() as client:
+        urls = {path: HttpUrl(str(server.make_url(path))) for path in pages}
+        yield client, urls, hits
 
 
 @pytest.fixture
@@ -17,63 +45,52 @@ def memory_cache_backend() -> MemoryCacheBackend[Response]:
 
 @pytest.mark.asyncio
 async def test_fetch_without_cache() -> None:
-    url = HttpUrl("http://example.com")
     content = "Hello, world!"
-    async with ClientSession() as client:
-        with aioresponses() as m:
-            m.get(str(url), status=200, body=content)
-            fetcher = AiohttpFetcher(client=client)
-            response = await fetcher.fetch(url)
-            assert response.status == 200
-            assert response.content == content
+    async with serve({"/": content}) as (client, urls, _):
+        fetcher = AiohttpFetcher(client=client)
+        response = await fetcher.fetch(urls["/"])
+        assert response.status == 200
+        assert response.content == content
+        assert response.content_type == "text/html"
 
 
 @pytest.mark.asyncio
 async def test_fetch_with_cache(
     memory_cache_backend: MemoryCacheBackend[Response],
 ) -> None:
-    url = HttpUrl("http://example.com/cached")
     content = "This should be cached"
-    async with ClientSession() as client:
-        with aioresponses() as m:
-            m.get(str(url), status=200, body=content, repeat=True)
+    async with serve({"/cached": content}) as (client, urls, hits):
+        fetcher = AiohttpFetcher(
+            client=client, cache_backend=memory_cache_backend, cache_ttl=60
+        )
 
-            fetcher = AiohttpFetcher(
-                client=client, cache_backend=memory_cache_backend, cache_ttl=60
-            )
+        # First call - should fetch and cache
+        response1 = await fetcher.fetch(urls["/cached"])
+        assert response1.status == 200
+        assert response1.content == content
 
-            # First call - should fetch and cache
-            response1 = await fetcher.fetch(url)
-            assert response1.status == 200
-            assert response1.content == content
+        # Second call - should hit the cache
+        response2 = await fetcher.fetch(urls["/cached"])
+        assert response2.status == 200
+        assert response2.content == content
 
-            # Second call - should hit the cache
-            response2 = await fetcher.fetch(url)
-            assert response2.status == 200
-            assert response2.content == content
-
-            # Check that the request was only made once
-            assert len(m.requests) == 1
+        # Check that the request was only made once
+        assert hits["/cached"] == 1
 
 
 @pytest.mark.asyncio
 async def test_fetch_urls() -> None:
-    urls = [HttpUrl("http://example.com/1"), HttpUrl("http://example.com/2")]
-    contents = ["Page 1", "Page 2"]
+    contents = {"/1": "Page 1", "/2": "Page 2"}
 
-    async with ClientSession() as client:
-        with aioresponses() as m:
-            m.get(str(urls[0]), status=200, body=contents[0])
-            m.get(str(urls[1]), status=200, body=contents[1])
+    async with serve(contents) as (client, urls, _):
+        fetcher = AiohttpFetcher(client=client)
+        responses = await fetcher.fetch_urls([urls["/1"], urls["/2"]])
 
-            fetcher = AiohttpFetcher(client=client)
-            responses = await fetcher.fetch_urls(urls)
-
-            assert len(responses) == 2
-            assert responses[0].status == 200
-            assert responses[0].content == contents[0]
-            assert responses[1].status == 200
-            assert responses[1].content == contents[1]
+        assert len(responses) == 2
+        assert responses[0].status == 200
+        assert responses[0].content == contents["/1"]
+        assert responses[1].status == 200
+        assert responses[1].content == contents["/2"]
 
 
 @pytest.mark.asyncio

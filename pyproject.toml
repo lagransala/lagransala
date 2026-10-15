@@ -56,7 +56,6 @@ update_changelog_on_bump = true
 
 [tool.ruff]
 line-length = 88
-extend-exclude = ["lagransala_old.db"]
 
 [tool.ruff.lint]
 select = [

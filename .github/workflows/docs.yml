@@ -3,6 +3,17 @@ name: docs
 on:
   push:
     branches: [ "main" ]
+  # Build (without deploying) when a pull request touches the docs, or the code
+  # they document.
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "docs/**"
+      - "src/**"
+      - "properdocs.yml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docs.yml"
   workflow_dispatch:
 
 permissions:

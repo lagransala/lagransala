@@ -59,7 +59,7 @@ The `extractor` context defines plain Pydantic models for the output of the LLM.
 
 | Model | Purpose |
 |-------|---------|
-| `EventData` | One extracted event: `title`, `description`, `schedule` (a list of datetimes), `duration`, `author`, `tags`, `category` (`cine`, `coloquio` or `live_music`) and `price` (euros, up to two decimals). |
+| `EventData` | One extracted event: `title`, `description`, `schedule` (a list of datetimes), `duration` and `author`. |
 | `EventExtraction` | The list of `events` found in one page, with an `empty_reason` when the list is empty. |
 | `SourcedEventExtraction` | An `EventExtraction` plus the `model` used, the `source_url` and the extraction datetime `dt`. |
 | `EmptyReason` | `only_past`, `no_events_found`, `empty_content` or `extraction_error`. |
@@ -67,10 +67,6 @@ The `extractor` context defines plain Pydantic models for the output of the LLM.
 
 `EventExtractor` is the `Protocol` every extractor implements:
 `extract(content, context=None) -> SourcedEventExtraction`.
-
-!!! warning "Fields that are extracted but not stored"
-    `EventData` carries `tags`, `category` and `price`, but the `Event` table has no
-    columns for them, so they are dropped when the pipeline stores the events.
 
 ## Scraping models
 

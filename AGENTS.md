@@ -102,7 +102,7 @@ Persisted (`schedule/domain`), as SQLModel tables with `UUID` primary keys:
 
 Extraction (`extractor/domain`, plain Pydantic):
 
-- **`EventData`**: one extracted event, including `tags`, `category` and `price`. These three are **not persisted** because `Event` has no columns for them.
+- **`EventData`**: one extracted event (`title`, `description`, `schedule`, `duration`, `author`).
 - **`EventExtraction`** / **`SourcedEventExtraction`**: events found in one page, with `EmptyReason`, model, source URL and datetime.
 - **`SourcedContent`** / **`ContentFormat`**: fetched page content (`markdown`, `html` or `empty`).
 

@@ -15,7 +15,6 @@ def test_event_extraction_result_with_events():
         description="A test event.",
         author="Test Author",
         schedule=[now],
-        tags=[],
     )
     result = EventExtraction(events=[event], empty_reason=None)
     assert result.events == [event]

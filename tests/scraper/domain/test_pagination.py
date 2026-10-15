@@ -97,6 +97,6 @@ def test_pagination_urls(paginations: list[Pagination]):
     for pagination in paginations:
         urls = pagination.urls()
         assert isinstance(urls, Iterable), "URLs should be iterable"
-        assert (
-            not pagination.limit or len(urls) == pagination.limit
-        ), "Number of URLs should match the limit"
+        assert not pagination.limit or len(urls) == pagination.limit, (
+            "Number of URLs should match the limit"
+        )

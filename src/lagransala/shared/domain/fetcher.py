@@ -14,7 +14,6 @@ class Response(BaseModel):
 
 
 class Fetcher(Protocol):
-
     async def fetch(self, url: HttpUrl) -> Response: ...
 
     async def fetch_urls(self, urls: Iterable[HttpUrl]) -> Iterable[Response]: ...

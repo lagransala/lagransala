@@ -8,7 +8,6 @@ from ..domain import ContentScraper
 
 
 class JsonContentScraperRepo:
-
     _adapter = TypeAdapter(list[ContentScraper])
 
     def __init__(self, file: Path | str):

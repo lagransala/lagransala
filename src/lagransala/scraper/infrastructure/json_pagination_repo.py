@@ -8,7 +8,6 @@ from lagransala.scraper.domain.pagination import Pagination
 
 
 class JsonPaginationRepo:
-
     _adapter = TypeAdapter(list[Pagination])
 
     def __init__(self, file: Path | str):

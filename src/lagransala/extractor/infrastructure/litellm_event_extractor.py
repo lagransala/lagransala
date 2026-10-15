@@ -58,9 +58,7 @@ class LitellmEventExtractor:
             return await cached(
                 backend=self._cache_backend,
                 ttl=self._cache_ttl,
-            )(
-                self._extract
-            )(content, context)
+            )(self._extract)(content, context)
         else:
             return await self._extract(content, context)
 

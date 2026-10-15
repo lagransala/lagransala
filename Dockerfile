@@ -13,7 +13,3 @@ RUN uv python install 3.13
 WORKDIR /app
 ADD . /app
 RUN uv sync --dev
-RUN uv run scrapling install
-RUN uv run playwright install-deps
-RUN uv run playwright install
-RUN uv run camoufox
